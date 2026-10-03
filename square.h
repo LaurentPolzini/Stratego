@@ -9,7 +9,7 @@ typedef struct sSquare *tSquare;
 enum square_state {EMPTY, OCCUPIED, LAKE};
 
 // ------------------------------------ Creators ------------------------------------
-tSquare create_square(unsigned int i, unsigned int j);
+tSquare create_square(unsigned int abciss, unsigned int ordonne);
 
 // ------------------------------------ Getters ------------------------------------
 // Get struct_soldier of a square

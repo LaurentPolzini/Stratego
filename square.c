@@ -11,10 +11,10 @@ struct sSquare {
 };
 
 // ------------------------------------ Creators ------------------------------------
-tSquare create_square(unsigned int i, unsigned int j) {
+tSquare create_square(unsigned int abciss, unsigned int ordonne) {
     tSquare square = malloc(sizeof(struct sSquare));
 
-    square->pos = create_position(i, j);
+    square->pos = create_position(abciss, ordonne);
     square->soldier = NULL;
     square->state = EMPTY;
 
@@ -73,7 +73,6 @@ tSoldier clear_square(tSquare square) {
 void destroy_square(tSquare *square) {
     if (square && *square) {
         destroy_position(&((*square)->pos));
-        destroy_soldier(&((*square)->soldier));
         free(*square);
         *square = NULL;
     }

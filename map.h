@@ -16,8 +16,8 @@ tMap create_map(void);
 
 // ------------------------------------ Getters ------------------------------------
 tSquare **get_map(tMap map);
-// Get specific square[i][j] on map. i being lines and j columns
-tSquare get_square(tMap map, unsigned int i, unsigned int j);
+// Get specific square[abciss][ordonne] on map
+tSquare get_square(tMap map, unsigned int abciss, unsigned int ordonne);
 
 // ------------------------------------ Questions ------------------------------------
 // is line and column given < 10 (NB_LINES or NB_COLUMNS)

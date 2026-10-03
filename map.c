@@ -49,9 +49,9 @@ tSquare **get_map(tMap map) {
     return NULL;
 }
 
-tSquare get_square(tMap map, unsigned int i, unsigned int j) {
-    if (map && (i < NB_LINES) && (j < NB_COLUMNS)) {
-        return (map->squares)[i][j];
+tSquare get_square(tMap map, unsigned int abciss, unsigned int ordonne) {
+    if (map && (abciss < NB_LINES) && (ordonne < NB_COLUMNS)) {
+        return (map->squares)[abciss][ordonne];
     }
     return NULL;
 }

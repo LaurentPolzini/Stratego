@@ -2,9 +2,11 @@
 #include "unite.h"
 #include "army.h"
 #include "map.h"
+#include "position.h"
+#include "square.h"
 
 /*
-    UNIT TEST
+    --------------------------------------- UNIT TEST ---------------------------------------
 */
 int test_fight_marshall_general(void) {
     int nb_error = 0;
@@ -373,7 +375,7 @@ int test_creators_comparators(void) {
 
 
 /*
-    ARMY TEST
+    --------------------------------------- ARMY TEST ---------------------------------------
 */
 int test_creation_destruction_soldier(void) {
     int nb_error = 0;
@@ -390,12 +392,12 @@ int test_creation_destruction_soldier(void) {
         printf("\tError - Soldier id is 0\n");
         ++nb_error;
     }
-    if (!(get_abcisse(get_position(soldier)) == 50)) {
-        printf("\tError - Soldier abcisse is not 50 (=>%d)\n", get_abcisse(get_position(soldier)));
+    if (!(get_abcisse(get_position(soldier)) == OUT_OF_POS)) {
+        printf("\tError - Soldier abcisse is not %d (=>%d)\n", OUT_OF_POS, get_abcisse(get_position(soldier)));
         ++nb_error;
     }
-    if (!(get_ordonnee(get_position(soldier)) == 50)) {
-        printf("\tError - Soldier ordonnee is not 50 (=>%d)\n", get_ordonnee(get_position(soldier)));
+    if (!(get_ordonnee(get_position(soldier)) == OUT_OF_POS)) {
+        printf("\tError - Soldier ordonnee is not %d (=>%d)\n", OUT_OF_POS, get_ordonnee(get_position(soldier)));
         ++nb_error;
     }
     printf("Destruction.\n");
@@ -486,6 +488,160 @@ int test_creation_army(void) {
     return nb_error;
 }
 
+/*
+    --------------------------------------- POSITION TEST ---------------------------------------
+*/
+int test_position(void) {
+    int nb_error = 0;
+
+    tPosition pos = create_position(0, 20);
+    if (get_abcisse(pos) != 0) {
+        ++nb_error;
+        printf("Error - Abcisse should be 0 (%d)\n", get_abcisse(pos));
+    }
+    if (get_ordonnee(pos) != 20) {
+        ++nb_error;
+        printf("Error - Ordonnee should be 20 (%d)\n", get_ordonnee(pos));
+    }
+    destroy_position(&pos);
+    if (pos) {
+        ++nb_error;
+        printf("Error - Position wrongly destroyed\n");
+    }
+
+    return nb_error;   
+}
+
+/*
+    --------------------------------------- SQUARE TEST ---------------------------------------
+*/
+int test_square(void) {
+    int nb_error = 0;
+
+    tSquare square = create_square(0, 9);
+
+    if (get_soldier_square(square)) {
+        ++nb_error;
+        printf("Error - No soldier should be here\n");
+    }
+    if (get_state_square(square) != EMPTY) {
+        ++nb_error;
+        printf("Error - Square should be empty (state square\n");
+    }
+    if (get_abcisse(get_position_square(square)) != 0) {
+        ++nb_error;
+        printf("Error - Abcisse should be 0\n");
+    }
+    if (get_ordonnee(get_position_square(square)) != 9) {
+        ++nb_error;
+        printf("Error - Ordonnee should be 9\n");
+    }
+    if (!is_square_empty(square)) {
+        ++nb_error;
+        printf("Error - Square should be empty (is_empty)\n");
+    }
+
+    tSoldier soldat = create_soldier(create_captain(), BLUE, 0);
+    set_soldier_square(square, soldat);
+    if (!is_captain(get_unit(get_soldier_square(square)))) {
+        ++nb_error;
+        printf("Error - Captain should be on square\n");
+    }
+    if (is_square_empty(square)) {
+        ++nb_error;
+        printf("Error - Square shouldn't be empty, captain is on now !\n");
+    }
+    tSoldier cleared_soldier = clear_square(square);
+    if (!is_captain(get_unit(cleared_soldier))) {
+        ++nb_error;
+        printf("Error - Cleared square should return captain unit\n");
+    }
+    if (!is_square_empty(square)) {
+        ++nb_error;
+        printf("Error - square should be emptied\n");
+    }
+    destroy_square(&square);
+    if (square) {
+        ++nb_error;
+        printf("Error - Squared not destroyed\n");
+    }
+    if (!soldat) {
+        ++nb_error;
+        printf("Error - soldier should not be NULL\n");
+    }
+    destroy_soldier(&soldat);
+
+    return nb_error;
+}
+
+/*
+    --------------------------------------- MAP TEST ---------------------------------------
+*/
+int test_map(void) {
+    int nb_error = 0;
+
+    tMap map = create_map();
+
+    tSquare **squares = get_map(map);
+    for (int i = 0 ; i < NB_LINES ; ++i) {
+        for (int j = 0 ; j < NB_COLUMNS ; ++j) {
+            if (!is_square_empty(squares[i][j])) {
+                ++nb_error;
+                printf("Error - Square should be empty (map creation)\n");
+            }
+        }
+    }
+    
+    if (squares[10][9] != get_square(map, 10, 9)) {
+        ++nb_error;
+        printf("Error - Not the same square (should be the same)\n");
+    }
+    tPosition pos = create_position(9, 12);
+    if (is_position_on_map(pos)) {
+        ++nb_error;
+        printf("Error - Position should not be on map\n");
+    }
+    destroy_position(&pos);
+
+    pos = create_position(0, 5);
+    if (!is_position_on_map(pos)) {
+        ++nb_error;
+        printf("Error - Position should be on map\n");
+    }
+    destroy_position(&pos);
+
+    pos = create_position(11, 5);
+    if (is_position_on_map(pos)) {
+        ++nb_error;
+        printf("Error - Position should not be on map\n");
+    }
+    destroy_position(&pos);
+
+    pos = create_position(4, 5);
+    tSoldier soldat = create_soldier(create_colonel(), BLUE, 0);
+    set_soldier_on_map(map, pos, soldat);
+    if (!is_colonel(get_unit(get_soldier_square(get_square(map, 4, 5))))) {
+        ++nb_error;
+        printf("Error - This should be a colonel on square 4 5\n");
+    }
+    clear_square_on_map(map, pos);
+    if (is_colonel(get_unit(get_soldier_square(get_square(map, 4, 5))))) {
+        ++nb_error;
+        printf("Error - This square 4:5 should be cleared\n");
+    }
+
+    destroy_map(&map);
+    if (map) {
+        ++nb_error;
+        printf("Error - Map not destroyed\n");
+    }
+
+    destroy_position(&pos);
+    destroy_soldier(&soldat);
+
+    return nb_error;
+}
+
 /*   Tests launcher - main   */
 int main(void) {
     int is_error = 0;
@@ -547,7 +703,32 @@ int main(void) {
         printf("%d errors.\n", is_error);
     }
 
+    // ---------------- position test ----------------
+    printf("--- Position Test --- \n");
+    is_error += test_position();
+    if (!is_error) {
+        printf("Ok\n");
+    } else {
+        printf("%d errors.\n", is_error);
+    }
 
+    // ---------------- square test ----------------
+    printf("--- Square Test ---\n");
+    is_error += test_square();
+    if (!is_error) {
+        printf("Ok\n");
+    } else {
+        printf("%d errors.\n", is_error);
+    }
+
+    // ---------------- map test ----------------
+    printf("--- Map Test ---\n");
+    is_error += test_map();
+    if (!is_error) {
+        printf("Ok\n");
+    } else {
+        printf("%d errors.\n", is_error);
+    }
 
     return 0;
 }

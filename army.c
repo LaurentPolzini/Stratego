@@ -70,7 +70,7 @@ tSoldier create_soldier(tUnite unit, enum side_color side, int id) {
     soldat->side = side;
     soldat->unit = unit;
     soldat->unit_id = id;
-    soldat->pos = create_position(50, 50);
+    soldat->pos = create_position(OUT_OF_POS, OUT_OF_POS);
 
     return soldat;
 }

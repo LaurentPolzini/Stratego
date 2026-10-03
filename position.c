@@ -8,20 +8,20 @@ struct sPosition {
 };
 
 // ------------------------------------ Creators ------------------------------------
-tPosition create_position(unsigned int i, unsigned int j) {
+tPosition create_position(unsigned int abciss, unsigned int ordonne) {
     tPosition pos = malloc(sizeof(struct sPosition));
-    pos->abcisse = i;
-    pos->ordonnee = j;
+    pos->abcisse = abciss;
+    pos->ordonnee = ordonne;
     return pos;
 }
 
 // ------------------------------------ Getters ------------------------------------
-int get_abcisse(tPosition pos) {
-    if (!pos) return -1;
+unsigned int get_abcisse(tPosition pos) {
+    if (!pos) return OUT_OF_POS;
     return pos->abcisse;
 }
-int get_ordonnee(tPosition pos) {
-    if (!pos) return -1;
+unsigned int get_ordonnee(tPosition pos) {
+    if (!pos) return OUT_OF_POS;
     return pos->ordonnee;
 }
 
