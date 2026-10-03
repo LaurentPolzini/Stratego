@@ -5,8 +5,8 @@
 
 struct sUnite {
     char *name;
-    int strengh;
-    int movement;
+    unsigned int strengh;
+    unsigned int movement;
 };
 
 /*    Creators    */
@@ -145,14 +145,14 @@ char *get_name(tUnite unit) {
     return NULL;
 }
 
-int get_strengh(tUnite unit) {
+unsigned int get_strengh(tUnite unit) {
     if (unit) {
         return unit->strengh;
     }
     return -1;
 }
 
-int get_movement(tUnite unit) {
+unsigned int get_movement(tUnite unit) {
     if (unit) {
         return unit->movement;
     }

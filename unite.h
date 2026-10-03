@@ -27,9 +27,9 @@ void destroy_unit(tUnite *unit);
 */
 char *get_name(tUnite unit);
 
-int get_strengh(tUnite unit);
+unsigned int get_strengh(tUnite unit);
 
-int get_movement(tUnite unit);
+unsigned int get_movement(tUnite unit);
 
 // comparators
 int is_spy(tUnite unit);

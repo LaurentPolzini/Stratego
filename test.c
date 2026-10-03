@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "unite.h"
 #include "army.h"
 #include "map.h"
@@ -512,6 +513,55 @@ int test_position(void) {
     return nb_error;   
 }
 
+int test_distance(void) {
+    int nb_error = 0;
+
+    tPosition posFrom = create_position(0, 0);
+    tPosition posTo = create_position(0, 0);
+
+    if (get_distance(posFrom, posTo) != 0) {
+        ++nb_error;
+        printf("Error - Distance should be 0.\n");
+    }
+    // --- next test
+    set_ordonnee(posFrom, 0);
+    set_abcisse(posFrom, 0);
+    set_ordonnee(posTo, 0);
+    set_abcisse(posTo, 9);
+
+    if (get_distance(posFrom, posTo) != 9) {
+        ++nb_error;
+        printf("Error - Distance should be 0.\n");
+    }
+
+    // --- next test
+    set_ordonnee(posFrom, 0);
+    set_abcisse(posFrom, 0);
+    set_ordonnee(posTo, 1);
+    set_abcisse(posTo, 1);
+
+    if (get_distance(posFrom, posTo) != UINT32_MAX) {
+        ++nb_error;
+        printf("Error - Distance should be %d. Not aligned\n", UINT32_MAX);
+    }
+
+    // --- next test
+    set_ordonnee(posFrom, 2);
+    set_abcisse(posFrom, 0);
+    set_ordonnee(posTo, 0);
+    set_abcisse(posTo, 1);
+
+    if (get_distance(posFrom, posTo) != UINT32_MAX) {
+        ++nb_error;
+        printf("Error - Distance should be %d. Not aligned\n", UINT32_MAX);
+    }
+
+    destroy_position(&posFrom);
+    destroy_position(&posTo);
+
+    return nb_error;
+}
+
 /*
     --------------------------------------- SQUARE TEST ---------------------------------------
 */
@@ -599,21 +649,21 @@ int test_map(void) {
     tPosition pos = create_position(9, 12);
     if (is_position_on_map(pos)) {
         ++nb_error;
-        printf("Error - Position should not be on map\n");
+        printf("Error - Position 9 12 should not be on map\n");
     }
     destroy_position(&pos);
 
     pos = create_position(0, 5);
     if (!is_position_on_map(pos)) {
         ++nb_error;
-        printf("Error - Position should be on map\n");
+        printf("Error - Position 0 5 should be on map\n");
     }
     destroy_position(&pos);
 
-    pos = create_position(11, 5);
+    pos = create_position(10, 5);
     if (is_position_on_map(pos)) {
         ++nb_error;
-        printf("Error - Position should not be on map\n");
+        printf("Error - Position 10 5 should not be on map\n");
     }
     destroy_position(&pos);
 
@@ -706,6 +756,13 @@ int main(void) {
     // ---------------- position test ----------------
     printf("--- Position Test --- \n");
     is_error += test_position();
+    if (!is_error) {
+        printf("Ok\n");
+    } else {
+        printf("%d errors.\n", is_error);
+    }
+
+    is_error += test_distance();
     if (!is_error) {
         printf("Ok\n");
     } else {
