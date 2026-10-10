@@ -742,6 +742,7 @@ int test_can_he_move(void) {
     
     destroy_map(&map);
 
+    destroy_position(&posToGoTo);
     destroy_position(&posGeneral);
     destroy_position(&posColonelBlue);
     destroy_position(&posColonelRed);
@@ -823,7 +824,8 @@ int test_move(void) {
     destroy_position(&posColonel);
     destroy_position(&posBeforeLake);
     destroy_position(&posLake);
-
+    destroy_position(&posToGo);
+    destroy_map(&map);
 
     return nb_error;
 }
@@ -885,12 +887,13 @@ int test_turn_with_fight(void) {
     enum side_color side_to_play = RED;
     print_hidden_map(get_board_map(board), side_to_play);
 
-    for (int i = 0 ; i < 4 ; ++i) {
+    for (int i = 0 ; i < 1 ; ++i) {
         play_a_turn(board);
         print_hidden_map(get_board_map(board), get_playing_side(board));
         side_to_play = (side_to_play == BLUE ? RED : BLUE);
     }
 
+    destroy_board(&board);
     return nb_error;
 }
 

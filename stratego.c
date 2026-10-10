@@ -116,6 +116,8 @@ tSoldier get_soldier_user(tMap map, tArmy army) {
         }
     } while(!conds_ok);
 
+    destroy_position(&posWanted);
+    free(moveables);
     return soldier;
 }
 
@@ -235,6 +237,8 @@ void play_a_turn(tBoard board) {
         break;
     }
     board->playing_side = (board->playing_side == BLUE ? RED : BLUE);
+
+    destroy_position(&posTargetted);
 
     return;
 }
