@@ -15,6 +15,7 @@ typedef struct sMap *tMap;
 tMap create_map(void);
 
 void print_map(tMap map);
+void print_reversed_map(tMap map);
 
 // ------------------------------------ Getters ------------------------------------
 tSquare **get_map(tMap map);
@@ -63,6 +64,10 @@ tPosition move_soldier_to_pos(tMap map, tSoldier soldier, tPosition pos);
 
 
 int move_soldier_to_pos_2(tMap map, tSoldier soldier, tPosition pos);
+
+void set_whole_blue_army_on_map(tMap map, tArmy army);
+
+void set_whole_red_army_on_map(tMap map, tArmy army);
 
 // ------------------------------------ Destroyers ------------------------------------
 void destroy_map(tMap *map);

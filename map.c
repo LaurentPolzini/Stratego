@@ -78,6 +78,28 @@ void print_map(tMap map) {
     }
 }
 
+void print_reversed_map(tMap map) {
+    if (map) {
+        printf("\n");
+        get_all_abreviations();
+        for (int i = 0 ; i < NB_LINES ; ++i) {
+            printf("%d ", i); // afficher les n° de lignes
+            fflush(stdout);
+            for (int j = NB_COLUMNS - 1 ; j >= 0 ; --j) {
+                print_square(get_square(map, i, j));
+            }
+            printf("\n");
+        }
+        printf("  ");
+        fflush(stdout);
+        for (int j = NB_COLUMNS - 1 ; j >= 0 ; --j) {
+            printf("  %d ", j); // afficher les n° de colonnes
+            fflush(stdout);
+        }
+        printf("\n");
+    }
+}
+
 tSquare **get_map(tMap map) {
     if (map) {
         return map->squares;
@@ -173,13 +195,13 @@ int set_soldier_on_map(tMap map, tPosition pos, tSoldier soldier) {
         // If soldier is indeed set, and he isn't set for the first time,
         // it means he moves, so we need to clear square from where he comes
         
-        return set_soldier_square(get_square(map, get_abcisse(pos), get_ordonnee(pos)), soldier);
+        return set_soldier_square(get_square_from_pos(map, pos), soldier);
     }
     return 0;
 }
 
 tSoldier clear_square_on_map(tMap map, tPosition pos) {
-    return clear_square(get_square(map, get_abcisse(pos), get_ordonnee(pos)));
+    return clear_square(get_square_from_pos(map, pos));
 }
 
 int move_soldier_to_pos_2(tMap map, tSoldier soldier, tPosition pos) {
@@ -247,6 +269,32 @@ tPosition move_soldier_to_pos(tMap map, tSoldier soldier, tPosition pos) {
         break;
     }
     return posSoldier;
+}
+
+void set_whole_blue_army_on_map(tMap map, tArmy army) {
+    if (!(map && army)) return;
+    int ind_army = 0;
+    for (int i = 0 ; i < 4 ; ++i) {
+        ind_army = i * NB_COLUMNS;
+        for (int j = 0 ; j < NB_COLUMNS ; ++j) {
+            
+            set_soldier_on_map(map, get_position_square(get_square(map, i, j)), get_soldier_in_army(army, ind_army));
+            ++ind_army;
+        }
+    }
+}
+
+void set_whole_red_army_on_map(tMap map, tArmy army) {
+    if (!(map && army)) return;
+    int ind_army = 0;
+    for (int i = 6 ; i < 10 ; ++i) {
+        ind_army = ((NB_LINES - 1) - i) * NB_COLUMNS;
+        for (int j = 0 ; j < NB_COLUMNS ; ++j) {
+            
+            set_soldier_on_map(map, get_position_square(get_square(map, i, j)), get_soldier_in_army(army, ind_army));
+            ++ind_army;
+        }
+    }
 }
 
 // ------------------------------------ Destroyers ------------------------------------

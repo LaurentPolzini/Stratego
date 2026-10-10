@@ -87,7 +87,7 @@ void destroy_army(tArmy *army) {
     *army = NULL;
 }
 void destroy_soldier_in_army(tArmy army, tSoldier soldier) {
-    if (army && soldier) {
+    if (is_soldier_on_army_side(army, soldier)) {
         int id = get_id(soldier);
         if (army->soldiers[id]) {
             destroy_soldier(&(army->soldiers[id]));
@@ -100,7 +100,7 @@ void destroy_soldier_in_army(tArmy army, tSoldier soldier) {
     --------------------------- Getters ---------------------------
 */
 tSoldier get_soldier_in_army(tArmy army, int id) {
-    if (army && (id > 0 && id < (SIZE_ARMY - 1))) {
+    if (army && (id >= 0 && id < SIZE_ARMY)) {
         return army->soldiers[id];
     }
     return NULL;
@@ -116,4 +116,11 @@ enum side_color get_army_color(tArmy army) {
 tSoldier *get_soldierZ_in_army(tArmy army) {
     if (!army) return NULL;
     return army->soldiers;
+}
+
+int is_soldier_on_army_side(tArmy army, tSoldier soldier) {
+    if (army && soldier) {
+        return army->side == get_side(soldier);
+    }
+    return 0;
 }

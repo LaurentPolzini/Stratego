@@ -5,6 +5,7 @@
 #include "map.h"
 #include "position.h"
 #include "square.h"
+#include "stratego.h"
 
 /*
     --------------------------------------- UNIT TEST ---------------------------------------
@@ -760,7 +761,7 @@ int test_move(void) {
 
     tPosition posMarshall = create_position(2, 3);
     set_soldier_on_map(map, posMarshall, marshall);
-    print_map(map);
+    //print_map(map);
 
     tPosition posToGo = create_position(3, 3);
     if (!move_soldier_to_pos_2(map, marshall, posToGo)) {
@@ -771,14 +772,14 @@ int test_move(void) {
         ++nb_error;
         printf("Error - Pos are supposed to be equals.\n");
     }
-    print_map(map);
+    //print_map(map);
     printf("\n");
 
     tSoldier colonel = create_soldier(create_colonel(),RED,0);
     tPosition posColonel = create_position(3, 4);
     set_soldier_on_map(map, posColonel, colonel);
     printf("--- Colonel set\n");
-    print_map(map);
+    //print_map(map);
     printf("\n");
 
     if (!move_soldier_to_pos_2(map, marshall, posColonel)) {
@@ -789,7 +790,7 @@ int test_move(void) {
         ++nb_error;
         printf("Error - Pos are supposed to be equals, marshall killed colonel.\n");
     }
-    print_map(map);
+    //print_map(map);
     printf("\n");
 
     tPosition posBeforeLake = create_position(4, 4);
@@ -801,7 +802,7 @@ int test_move(void) {
         ++nb_error;
         printf("Error - Pos are supposed to be equals, marshall moved before lake.\n");
     }
-    print_map(map);
+    //print_map(map);
     printf("\n");
 
     tPosition posLake = create_position(4, 3);
@@ -813,7 +814,7 @@ int test_move(void) {
         ++nb_error;
         printf("Error - Pos are NOT supposed to be equals, marshall cannot move on lake.\n");
     }
-    print_map(map);
+    //print_map(map);
     printf("\n");
 
     destroy_soldier(&marshall);
@@ -823,6 +824,73 @@ int test_move(void) {
     destroy_position(&posBeforeLake);
     destroy_position(&posLake);
 
+
+    return nb_error;
+}
+
+/*
+    --------------------------------------- STRATEGO TEST ---------------------------------------
+*/
+int test_stratego(void) {
+    int nb_error = 0;
+
+    tPosition pos = get_user_pos();
+    if (!is_position_on_map(pos)) {
+        ++nb_error;
+        printf("Error - Uniquement des coordonnées correctes sont acceptées.\n");
+    }
+
+    tMap map = create_map();
+    tSoldier soldierToTarget = create_spy_soldier(BLUE, 0);
+    tPosition posToTarget = create_position(3, 4);
+
+    set_soldier_on_map(map, posToTarget, soldierToTarget);
+    print_map(map);
+
+    tSoldier soldierToMove = get_soldier_user(map, BLUE);
+    if (!soldierToMove) {
+        ++nb_error;
+        printf("Error - Un soldat doit être choisi.\n");
+    }
+
+    tPosition posToMove = create_position(4, 4);
+    if (!can_soldier_move_to_pos(map, soldierToMove, posToMove)) {
+        ++nb_error;
+        printf("Error - Soldier on (3, 4) can move to (4, 4).\n");
+    }
+    move_soldier_to_pos_2(map, soldierToMove, posToMove);
+    print_map(map);
+
+    printf("Let's play a turn.\n");
+    play_a_turn(map, NULL, NULL, BLUE);
+    print_map(map);
+
+    destroy_soldier(&soldierToTarget);
+    destroy_position(&posToTarget);
+    destroy_position(&pos);
+    destroy_map(&map);
+
+    return nb_error;
+}
+
+int test_turn_with_fight(void) {
+    int nb_error = 0;
+
+    tArmy armyBlue = create_army(BLUE);
+    tArmy armyRed = create_army(RED);
+
+    tMap map = create_map();
+
+    set_whole_blue_army_on_map(map, armyBlue);
+    set_whole_red_army_on_map(map, armyRed);
+    print_map(map);
+
+    enum side_color side_to_play = BLUE;
+    for (int i = 0 ; i < 4 ; ++i) {
+        play_a_turn(map, armyBlue, armyRed, side_to_play);
+        print_map(map);
+        side_to_play = (side_to_play == BLUE ? RED : BLUE);
+    }
 
     return nb_error;
 }
@@ -940,6 +1008,25 @@ int main(void) {
         printf("%d errors. Move\n", is_error);
     }
 
+    // ---------------- stratego test ----------------
+    printf("--- Stratego Test ---\n");
+    // is_error += test_stratego();
+    // if (!is_error) {
+    //     printf("Ok Stratego\n");
+    // } else {
+    //     printf("%d errors. Stratego\n", is_error);
+    // }
+    // is_error = 0;
+    // printf("\n");
+
+    is_error += test_turn_with_fight();
+    if (!is_error) {
+        printf("Ok Stratego fight\n");
+    } else {
+        printf("%d errors. Stratego fight\n", is_error);
+    }
+    is_error = 0;
+    printf("\n");
 
     return 0;
 }
