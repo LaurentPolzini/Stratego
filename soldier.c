@@ -150,6 +150,19 @@ int can_soldier_move_this_far(tSoldier soldier, unsigned int distance) {
     return get_movement(get_unit(soldier)) >= distance;
 }
 
+int are_soldiers_equal(tSoldier soldier1, tSoldier soldier2) {
+    if (!(soldier1 && soldier2)) return 0;
+    return soldier1->side == soldier2->side && soldier1->unit_id == soldier2->unit_id && are_units_equal(soldier1->unit, soldier2->unit);
+}
+
+void print_color(enum side_color color) {
+    if (color == BLUE) {
+        printf("Blue ");
+    } else {
+        printf("Red ");
+    }
+}
+
 /*
     --------------------------- Setters ---------------------------
 */

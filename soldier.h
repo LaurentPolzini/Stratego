@@ -68,6 +68,10 @@ int is_soldier_on_pos(tSoldier soldier, tPosition pos);
 
 int can_soldier_move_this_far(tSoldier soldier, unsigned int distance);
 
+int are_soldiers_equal(tSoldier soldier1, tSoldier soldier2);
+
+void print_color(enum side_color color);
+
 /*
     --------------------------- Setters ---------------------------
 */

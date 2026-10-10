@@ -16,6 +16,7 @@ tMap create_map(void);
 
 void print_map(tMap map);
 void print_reversed_map(tMap map);
+void print_hidden_map(tMap map, enum side_color side);
 
 // ------------------------------------ Getters ------------------------------------
 tSquare **get_map(tMap map);
@@ -24,6 +25,10 @@ tSquare get_square(tMap map, unsigned int abciss, unsigned int ordonne);
 
 // Same as last function
 tSquare get_square_from_pos(tMap map, tPosition pos);
+
+tSquare *get_squares_he_can_move_to(tMap map, tSoldier soldier, int *nb_of_square_he_can_move_to);
+
+int does_have_moveable_squares(tMap map, tSoldier soldier);
 
 // ------------------------------------ Questions ------------------------------------
 // is line and column given < 10 (NB_LINES or NB_COLUMNS)

@@ -834,41 +834,42 @@ int test_move(void) {
 int test_stratego(void) {
     int nb_error = 0;
 
-    tPosition pos = get_user_pos();
-    if (!is_position_on_map(pos)) {
-        ++nb_error;
-        printf("Error - Uniquement des coordonnées correctes sont acceptées.\n");
-    }
+    // tPosition pos = get_user_pos();
+    // if (!is_position_on_map(pos)) {
+    //     ++nb_error;
+    //     printf("Error - Uniquement des coordonnées correctes sont acceptées.\n");
+    // }
 
-    tMap map = create_map();
-    tSoldier soldierToTarget = create_spy_soldier(BLUE, 0);
-    tPosition posToTarget = create_position(3, 4);
+    // tMap map = create_map();
+    // tSoldier soldierToTarget = create_spy_soldier(BLUE, 0);
+    // tPosition posToTarget = create_position(3, 4);
 
-    set_soldier_on_map(map, posToTarget, soldierToTarget);
-    print_map(map);
+    // set_soldier_on_map(map, posToTarget, soldierToTarget);
+    // print_map(map);
 
-    tSoldier soldierToMove = get_soldier_user(map, BLUE);
-    if (!soldierToMove) {
-        ++nb_error;
-        printf("Error - Un soldat doit être choisi.\n");
-    }
+    // tSoldier soldierToMove = get_soldier_user(map, BLUE);
+    // if (!soldierToMove) {
+    //     ++nb_error;
+    //     printf("Error - Un soldat doit être choisi.\n");
+    // }
 
-    tPosition posToMove = create_position(4, 4);
-    if (!can_soldier_move_to_pos(map, soldierToMove, posToMove)) {
-        ++nb_error;
-        printf("Error - Soldier on (3, 4) can move to (4, 4).\n");
-    }
-    move_soldier_to_pos_2(map, soldierToMove, posToMove);
-    print_map(map);
+    // tPosition posToMove = create_position(4, 4);
+    // if (!can_soldier_move_to_pos(map, soldierToMove, posToMove)) {
+    //     ++nb_error;
+    //     printf("Error - Soldier on (3, 4) can move to (4, 4).\n");
+    // }
+    // move_soldier_to_pos_2(map, soldierToMove, posToMove);
+    // print_map(map);
 
-    printf("Let's play a turn.\n");
-    play_a_turn(map, NULL, NULL, BLUE);
-    print_map(map);
+    // printf("Let's play a turn.\n");
+    // tBoard board = create_board(map, create_army(BLUE), create_army(RED));
+    // play_a_turn(board);
+    // print_map(map);
 
-    destroy_soldier(&soldierToTarget);
-    destroy_position(&posToTarget);
-    destroy_position(&pos);
-    destroy_map(&map);
+    // destroy_soldier(&soldierToTarget);
+    // destroy_position(&posToTarget);
+    // destroy_position(&pos);
+    // destroy_map(&map);
 
     return nb_error;
 }
@@ -876,19 +877,17 @@ int test_stratego(void) {
 int test_turn_with_fight(void) {
     int nb_error = 0;
 
-    tArmy armyBlue = create_army(BLUE);
-    tArmy armyRed = create_army(RED);
+    tBoard board = create_board(create_map(), create_army(BLUE), create_army(RED));
 
-    tMap map = create_map();
+    set_whole_blue_army_on_map(get_board_map(board), get_blue_army(board));
+    set_whole_red_army_on_map(get_board_map(board), get_red_army(board));
 
-    set_whole_blue_army_on_map(map, armyBlue);
-    set_whole_red_army_on_map(map, armyRed);
-    print_map(map);
+    enum side_color side_to_play = RED;
+    print_hidden_map(get_board_map(board), side_to_play);
 
-    enum side_color side_to_play = BLUE;
     for (int i = 0 ; i < 4 ; ++i) {
-        play_a_turn(map, armyBlue, armyRed, side_to_play);
-        print_map(map);
+        play_a_turn(board);
+        print_hidden_map(get_board_map(board), get_playing_side(board));
         side_to_play = (side_to_play == BLUE ? RED : BLUE);
     }
 

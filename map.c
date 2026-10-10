@@ -66,6 +66,24 @@ void print_map(tMap map) {
             for (int j = 0 ; j < NB_COLUMNS ; ++j) {
                 print_square(get_square(map, i, j));
             }
+            if (i == 1) {
+                printf(" v ");
+            }
+            if (i == 2) {
+                printf(" | ");
+            }
+            if (i == 3) {
+                printf("BLUE SIDE");
+            }
+            if (i == 6) {
+                printf("RED SIDE");
+            }
+            if (i == 7) {
+                printf(" | ");
+            }
+            if (i == 8) {
+                printf(" ^ ");
+            }
             printf("\n");
         }
         printf("  ");
@@ -87,6 +105,125 @@ void print_reversed_map(tMap map) {
             fflush(stdout);
             for (int j = NB_COLUMNS - 1 ; j >= 0 ; --j) {
                 print_square(get_square(map, i, j));
+            }
+            if (i == 1) {
+                printf(" ^ ");
+            }
+            if (i == 2) {
+                printf(" | ");
+            }
+            if (i == 3) {
+                printf("BLUE SIDE");
+            }
+            if (i == 6) {
+                printf("RED SIDE");
+            }
+            if (i == 7) {
+                printf(" | ");
+            }
+            if (i == 8) {
+                printf(" v ");
+            }
+            printf("\n");
+        }
+        printf("  ");
+        fflush(stdout);
+        for (int j = NB_COLUMNS - 1 ; j >= 0 ; --j) {
+            printf("  %d ", j); // afficher les n° de colonnes
+            fflush(stdout);
+        }
+        printf("\n");
+    }
+}
+
+// print map hidden for ennemy side
+void print_hidden_red_map(tMap map);
+void print_hidden_blue_map(tMap map);
+
+void print_hidden_map(tMap map, enum side_color side) {
+    if (side == BLUE) {
+        print_hidden_blue_map(map);
+    } else {
+        print_hidden_red_map(map);
+    }
+}
+
+void print_hidden_blue_map(tMap map) {
+    if (!map) return;
+    printf("\n");
+    get_all_abreviations();
+    for (int i = NB_LINES - 1 ; i >= 0 ; --i) {
+        printf("%d ", i); // afficher les n° de lignes
+        fflush(stdout);
+        for (int j = 0 ; j < NB_COLUMNS ; ++j) {
+            if (get_state_square(get_square(map, i, j)) == OCCUPIED
+                    && get_side(get_soldier_square(get_square(map, i, j))) != BLUE) {
+                printf("|xx|");
+            } else {
+                print_square(get_square(map, i, j));
+            }
+        }
+        if (i == 1) {
+            printf(" v ");
+        }
+        if (i == 2) {
+            printf(" | ");
+        }
+        if (i == 3) {
+            printf("BLUE SIDE");
+        }
+        if (i == 6) {
+            printf("RED SIDE");
+        }
+        if (i == 7) {
+            printf(" | ");
+        }
+        if (i == 8) {
+            printf(" ^ ");
+        }
+        printf("\n");
+    }   
+    printf("  ");
+    fflush(stdout);
+    for (int j = 0 ; j < NB_COLUMNS ; ++j) {
+        printf("  %d ", j); // afficher les n° de colonnes
+        fflush(stdout);
+    }
+    printf("\n");
+}
+
+void print_hidden_red_map(tMap map) {
+    if (map) {
+        printf("\n");
+        get_all_abreviations();
+        for (int i = 0 ; i < NB_LINES ; ++i) {
+            printf("%d ", i); // afficher les n° de lignes
+            fflush(stdout);
+            for (int j = NB_COLUMNS - 1 ; j >= 0 ; --j) {
+                if (get_state_square(get_square(map, i, j)) == OCCUPIED
+                    && get_side(get_soldier_square(get_square(map, i, j))) != RED) {
+                    printf("|xx|");
+                } else {
+                    print_square(get_square(map, i, j));
+                }
+            }
+            if (i == 1) {
+                printf(" ^ ");
+            }
+            if (i == 2) {
+                printf(" | ");
+            }
+            if (i == 3) {
+                printf("BLUE SIDE");
+            }
+            if (i == 6) {
+                printf("RED SIDE");
+            }
+            if (i == 7) {
+                printf(" | ");
+            }
+            if (i == 8) {
+                printf(" v ");
             }
             printf("\n");
         }
@@ -187,6 +324,75 @@ int can_soldier_move_to_pos(tMap map, tSoldier soldier, tPosition pos) {
         }
     }
     return ret_val;
+}
+
+tSquare *get_squares_he_can_move_to(tMap map, tSoldier soldier, int *nb_of_square_he_can_move_to) {
+    if (!(map && soldier && is_soldier_on_map(map, soldier) && nb_of_square_he_can_move_to)) return NULL;
+    tSquare *adj_squares = malloc(sizeof(tSquare) * 4);
+    int ind_adj_sq = 0;
+    if (!adj_squares) {
+        free(adj_squares);
+        return NULL;
+    }
+    int abc_square = get_abcisse(get_position(soldier));
+    int ord_square = get_ordonnee(get_position(soldier));
+    /*
+        -
+      _ x HERE
+        _
+    */
+    tPosition posTmp = create_position(abc_square, ord_square + 1);
+    if (is_square_on_map(get_square_from_pos(map, posTmp)) &&
+        can_soldier_move_to_pos(map, soldier, posTmp)) {
+        adj_squares[ind_adj_sq++] = get_square_from_pos(map, posTmp);
+    }
+    destroy_position(&posTmp);
+    /*
+           -
+      HERE x -
+           _
+    */
+    posTmp = create_position(abc_square, ord_square - 1);
+    if (is_square_on_map(get_square_from_pos(map, posTmp))
+        && can_soldier_move_to_pos(map, soldier, posTmp)) {
+        adj_squares[ind_adj_sq++] = get_square_from_pos(map, posTmp);
+    }
+    destroy_position(&posTmp);
+    /*
+        -
+      - x -
+       HERE
+    */
+    posTmp = create_position(abc_square - 1, ord_square);
+    if (is_square_on_map(get_square_from_pos(map, posTmp))
+        && can_soldier_move_to_pos(map, soldier, posTmp)) {
+        adj_squares[ind_adj_sq++] = get_square_from_pos(map, posTmp);
+    }
+    destroy_position(&posTmp);
+    /*
+       HERE
+      - x -
+        -
+    */
+    posTmp = create_position(abc_square + 1, ord_square);
+    if (is_square_on_map(get_square_from_pos(map, posTmp))
+        && can_soldier_move_to_pos(map, soldier, posTmp)) {
+        adj_squares[ind_adj_sq++] = get_square_from_pos(map, posTmp);
+    }
+    destroy_position(&posTmp);
+    
+    if (nb_of_square_he_can_move_to) {
+        *nb_of_square_he_can_move_to = ind_adj_sq;
+    }
+
+    return adj_squares;
+}
+
+int does_have_moveable_squares(tMap map, tSoldier soldier) {
+    int over_0 = 0;
+    tSquare *squares = get_squares_he_can_move_to(map, soldier, &over_0);
+    free(squares);
+    return over_0 > 0;
 }
 
 // ------------------------------------ Setters ------------------------------------
