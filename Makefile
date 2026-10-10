@@ -36,8 +36,10 @@ clean:
 
 unite.o : unite.h
 position.o : position.h
-army.o : position.h unite.h army.h
+army.o : soldier.h army.h
+soldier.o : soldier.h position.h unite.h
 square.o : position.h army.h
 map.o : map.h position.h square.h army.h
+
 
 main.o : unite.o army.o position.o map.o square.o

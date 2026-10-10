@@ -296,7 +296,7 @@ int test_creators_comparators(void) {
     }
 
     tUnite captain = create_captain();
-    if (!is_captain(create_captain())) {
+    if (!is_captain(captain)) {
         printf("\tError - captain creators wrong\n");
         ++nb_error;
     }
@@ -413,7 +413,7 @@ int test_creation_destruction_soldier(void) {
 int test_creation_army(void) {
     int nb_error = 0;
 
-    tSoldier *army = create_army(BLUE);
+    tArmy army = create_army(BLUE);
 
     int nb_flag = NB_FLAG; // must be 1
     int nb_bomb = NB_BOMB; // must be 6
@@ -428,45 +428,46 @@ int test_creation_army(void) {
     int nb_miner = NB_MINER; // must be 5
     int nb_scout = NB_SCOUT; // must be 8
 
+    tSoldier *soldiers = get_soldierZ_in_army(army);
     for (int i = 0 ; i < SIZE_ARMY ; ++i) {
-        if (!army[i]) {
+        if (!soldiers[i]) {
             printf("\tError - Not %d soldiers in army.\n", SIZE_ARMY);
             ++nb_error;
         } else {
-            if (is_flag(get_unit(army[i]))) {
+            if (is_flag(get_unit(soldiers[i]))) {
                 --nb_flag;
             }
-            if (is_bomb(get_unit(army[i]))) {
+            if (is_bomb(get_unit(soldiers[i]))) {
                 --nb_bomb;
             }
-            if (is_marshall(get_unit(army[i]))) {
+            if (is_marshall(get_unit(soldiers[i]))) {
                 --nb_marshall;
             }
-            if (is_general(get_unit(army[i]))) {
+            if (is_general(get_unit(soldiers[i]))) {
                 --nb_general;
             }
-            if (is_spy(get_unit(army[i]))) {
+            if (is_spy(get_unit(soldiers[i]))) {
                 --nb_spy;
             }
-            if (is_colonel(get_unit(army[i]))) {
+            if (is_colonel(get_unit(soldiers[i]))) {
                 --nb_colonel;
             }
-            if (is_major(get_unit(army[i]))) {
+            if (is_major(get_unit(soldiers[i]))) {
                 --nb_major;
             }
-            if (is_captain(get_unit(army[i]))) {
+            if (is_captain(get_unit(soldiers[i]))) {
                 --nb_captain;
             }
-            if (is_lieutenant(get_unit(army[i]))) {
+            if (is_lieutenant(get_unit(soldiers[i]))) {
                 --nb_lieutenant;
             }
-            if (is_sergeant(get_unit(army[i]))) {
+            if (is_sergeant(get_unit(soldiers[i]))) {
                 --nb_sergeant;
             }
-            if (is_miner(get_unit(army[i]))) {
+            if (is_miner(get_unit(soldiers[i]))) {
                 --nb_miner;
             }
-            if (is_scout(get_unit(army[i]))) {
+            if (is_scout(get_unit(soldiers[i]))) {
                 --nb_scout;
             }
         }
@@ -569,7 +570,6 @@ int test_square(void) {
     int nb_error = 0;
 
     tSquare square = create_square(0, 9);
-
     if (get_soldier_square(square)) {
         ++nb_error;
         printf("Error - No soldier should be here\n");
@@ -620,7 +620,6 @@ int test_square(void) {
         printf("Error - soldier should not be NULL\n");
     }
     destroy_soldier(&soldat);
-
     return nb_error;
 }
 
@@ -635,14 +634,14 @@ int test_map(void) {
     tSquare **squares = get_map(map);
     for (int i = 0 ; i < NB_LINES ; ++i) {
         for (int j = 0 ; j < NB_COLUMNS ; ++j) {
-            if (!is_square_empty(squares[i][j])) {
+            if (!(is_square_empty(squares[i][j]) || is_square_lake(squares[i][j]))) {
                 ++nb_error;
                 printf("Error - Square should be empty (map creation)\n");
             }
         }
     }
     
-    if (squares[10][9] != get_square(map, 10, 9)) {
+    if (squares[9][9] != get_square(map, 9, 9)) {
         ++nb_error;
         printf("Error - Not the same square (should be the same)\n");
     }
@@ -668,8 +667,8 @@ int test_map(void) {
     destroy_position(&pos);
 
     pos = create_position(4, 5);
-    tSoldier soldat = create_soldier(create_colonel(), BLUE, 0);
-    set_soldier_on_map(map, pos, soldat);
+    tSoldier colonel = create_soldier(create_colonel(), BLUE, 0);
+    set_soldier_on_map(map, pos, colonel);
     if (!is_colonel(get_unit(get_soldier_square(get_square(map, 4, 5))))) {
         ++nb_error;
         printf("Error - This should be a colonel on square 4 5\n");
@@ -687,7 +686,143 @@ int test_map(void) {
     }
 
     destroy_position(&pos);
-    destroy_soldier(&soldat);
+    destroy_soldier(&colonel);
+
+    return nb_error;
+}
+
+int test_can_he_move(void) {
+    int nb_error = 0;
+    tMap map = create_map();
+    //print_map(map);
+    tSoldier general = create_soldier(create_general(), BLUE, 0);
+    tPosition posGeneral = create_position(5, 3);
+    if (set_soldier_on_map(map, posGeneral, general)) {
+        printf("Error - Not possible to set soldier here\n");
+        ++nb_error;
+    }
+    //print_map(map);
+    set_ordonnee(posGeneral, 4);
+    if (!set_soldier_on_map(map, posGeneral, general)) {
+        printf("Error - Actually possible to set soldier here\n");
+        ++nb_error;
+    }
+    //print_map(map);
+
+    tPosition posToGoTo = create_position(5,5);
+
+    if (!can_soldier_move_to_pos(map, general, posToGoTo)) {
+        ++nb_error;
+        printf("Error - He can move\n");
+    }
+    if (!set_soldier_on_map(map, posToGoTo, general)) {
+        printf("Error - Actually possible to set soldier here\n");
+        ++nb_error;
+    }
+    //print_map(map);
+
+    tSoldier colonelRed = create_soldier(create_colonel(), RED, 0);
+    tPosition posColonelRed = create_position(5, 4);
+    tSoldier colonelBlue = create_soldier(create_colonel(), BLUE, 0);
+    tPosition posColonelBlue = create_position(6, 5);
+
+    set_soldier_on_map(map, posColonelRed, colonelRed);
+    set_soldier_on_map(map, posColonelBlue, colonelBlue);
+
+    if (!(can_soldier_move_to_pos(map, general, posColonelRed) == 2)) {
+        ++nb_error;
+        printf("Error - He can move -> Fight\n");
+    }
+    //print_map(map);
+    if (can_soldier_move_to_pos(map, general, posColonelBlue)) {
+        ++nb_error;
+        printf("Error - He can't move -> Ally\n");
+    }
+    
+    destroy_map(&map);
+
+    destroy_position(&posGeneral);
+    destroy_position(&posColonelBlue);
+    destroy_position(&posColonelRed);
+
+    destroy_soldier(&general);
+    destroy_soldier(&colonelBlue);
+    destroy_soldier(&colonelRed);
+
+    return nb_error;
+}
+
+int test_move(void) {
+    int nb_error = 0;
+
+    tMap map = create_map();
+    tSoldier marshall = create_soldier(create_marshall(),BLUE,0);
+
+    tPosition posMarshall = create_position(2, 3);
+    set_soldier_on_map(map, posMarshall, marshall);
+    print_map(map);
+
+    tPosition posToGo = create_position(3, 3);
+    if (!move_soldier_to_pos_2(map, marshall, posToGo)) {
+        ++nb_error;
+        printf("Error - marshall should have moved\n");
+    }
+    if (!are_pos_equals(get_position(marshall), posToGo)) {
+        ++nb_error;
+        printf("Error - Pos are supposed to be equals.\n");
+    }
+    print_map(map);
+    printf("\n");
+
+    tSoldier colonel = create_soldier(create_colonel(),RED,0);
+    tPosition posColonel = create_position(3, 4);
+    set_soldier_on_map(map, posColonel, colonel);
+    printf("--- Colonel set\n");
+    print_map(map);
+    printf("\n");
+
+    if (!move_soldier_to_pos_2(map, marshall, posColonel)) {
+        ++nb_error;
+        printf("Error - marshall should have moved and kill colonel.\n");
+    }
+    if (!are_pos_equals(get_position(marshall), posColonel)) {
+        ++nb_error;
+        printf("Error - Pos are supposed to be equals, marshall killed colonel.\n");
+    }
+    print_map(map);
+    printf("\n");
+
+    tPosition posBeforeLake = create_position(4, 4);
+    if (!move_soldier_to_pos_2(map, marshall, posBeforeLake)) {
+        ++nb_error;
+        printf("Error - marshall should have moved to pos before lake.\n");
+    }
+    if (!are_pos_equals(get_position(marshall), posBeforeLake)) {
+        ++nb_error;
+        printf("Error - Pos are supposed to be equals, marshall moved before lake.\n");
+    }
+    print_map(map);
+    printf("\n");
+
+    tPosition posLake = create_position(4, 3);
+    if (move_soldier_to_pos_2(map, marshall, posLake)) {
+        ++nb_error;
+        printf("Error - marshall should NOT have moved into lake.\n");
+    }
+    if (are_pos_equals(get_position(marshall), posLake)) {
+        ++nb_error;
+        printf("Error - Pos are NOT supposed to be equals, marshall cannot move on lake.\n");
+    }
+    print_map(map);
+    printf("\n");
+
+    destroy_soldier(&marshall);
+    destroy_soldier(&colonel);
+    destroy_position(&posMarshall);
+    destroy_position(&posColonel);
+    destroy_position(&posBeforeLake);
+    destroy_position(&posLake);
+
 
     return nb_error;
 }
@@ -757,16 +892,16 @@ int main(void) {
     printf("--- Position Test --- \n");
     is_error += test_position();
     if (!is_error) {
-        printf("Ok\n");
+        printf("Ok Position\n");
     } else {
-        printf("%d errors.\n", is_error);
+        printf("%d errors. Position\n", is_error);
     }
 
     is_error += test_distance();
     if (!is_error) {
-        printf("Ok\n");
+        printf("Ok Distance\n");
     } else {
-        printf("%d errors.\n", is_error);
+        printf("%d errors. Distance\n", is_error);
     }
 
     // ---------------- square test ----------------
@@ -777,15 +912,34 @@ int main(void) {
     } else {
         printf("%d errors.\n", is_error);
     }
+    is_error = 0;
 
     // ---------------- map test ----------------
     printf("--- Map Test ---\n");
     is_error += test_map();
     if (!is_error) {
-        printf("Ok\n");
+        printf("Ok Map\n");
     } else {
-        printf("%d errors.\n", is_error);
+        printf("%d errors. Map\n", is_error);
     }
+    is_error = 0;
+    printf("\n");
+    is_error += test_can_he_move();
+    if (!is_error) {
+        printf("Ok Can Move\n");
+    } else {
+        printf("%d errors. Can Move\n", is_error);
+    }
+    is_error = 0;
+
+    printf("\n");
+    is_error += test_move();
+    if (!is_error) {
+        printf("Ok Move\n");
+    } else {
+        printf("%d errors. Move\n", is_error);
+    }
+
 
     return 0;
 }

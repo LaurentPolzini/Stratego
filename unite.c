@@ -129,6 +129,63 @@ tUnite create_flag(void) {
     return unit;
 }
 
+char *get_unit_abreviation(tUnite unit) {
+    if (!unit) return "--";
+    if (is_spy(unit)) {
+        return "sp";
+    }
+    if (is_bomb(unit)) {
+        return "bo";
+    }
+    if (is_captain(unit)) {
+        return "ca";
+    }
+    if (is_colonel(unit)) {
+        return "co";
+    }
+    if (is_general(unit)) {
+        return "ge";
+    }
+    if (is_lieutenant(unit)) {
+        return "li";
+    }
+    if (is_major(unit)) {
+        return "mj";
+    }
+    if (is_marshall(unit)) {
+        return "mr";
+    }
+    if (is_miner(unit)) {
+        return "mi";
+    }
+    if (is_scout(unit)) {
+        return "sc";
+    }
+    if (is_sergeant(unit)) {
+        return "se";
+    }
+    if (is_flag(unit)) {
+        return "fl";
+    }
+    return "--";
+}
+
+void get_all_abreviations(void) {
+    printf("Abreviation in order of Strengh\n");
+    printf("Bomb       : bo\n");
+    printf("Marshall   : mr\n");
+    printf("General    : ge\n");
+    printf("Colonel    : co\n");
+    printf("Major      : mj\n");
+    printf("Captain    : ca\n");
+    printf("Lieutenant : li\n");
+    printf("Sergeant   : se\n");
+    printf("Miner      : mi\n");
+    printf("Scout      : sc\n");
+    printf("Spy        : sp\n");
+    printf("Flag       : fl\n");
+}
+
 /*     Destroy     */
 void destroy_unit(tUnite *unit) {
     if (unit && *unit) {
@@ -219,6 +276,15 @@ int is_flag(tUnite unit) {
     return (unit->strengh == 0) && !(strcmp(unit->name, "flag"));
 }
 
+int are_units_equal(tUnite unit1, tUnite unit2) {
+    if (!(unit1 && unit2)) return 0;
+    return (!strcmp(unit1->name, unit2->name) && unit1->strengh == unit2->strengh && unit1->movement == unit2->movement);
+}
+
+int can_unit_move(tUnite unit) {
+    if (!unit) return 0;
+    return unit->movement > 0;
+}
 
 /*    Fight    */
 // (internal functions)

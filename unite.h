@@ -3,6 +3,11 @@
 
 typedef struct sUnite *tUnite;
 
+// print
+char *get_unit_abreviation(tUnite unit);
+
+void get_all_abreviations(void);
+
 /*
     --------------------------- Unit creation ---------------------------
 */
@@ -44,6 +49,10 @@ int is_general(tUnite unit);
 int is_marshall(tUnite unit);
 int is_bomb(tUnite unit);
 int is_flag(tUnite unit);
+
+int are_units_equal(tUnite unit1, tUnite unit2);
+
+int can_unit_move(tUnite unit);
 
 /*
     --------------------------- Fight ---------------------------

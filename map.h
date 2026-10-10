@@ -14,6 +14,8 @@ typedef struct sMap *tMap;
 // ------------------------------------ Creators ------------------------------------
 tMap create_map(void);
 
+void print_map(tMap map);
+
 // ------------------------------------ Getters ------------------------------------
 tSquare **get_map(tMap map);
 // Get specific square[abciss][ordonne] on map
@@ -26,8 +28,16 @@ tSquare get_square_from_pos(tMap map, tPosition pos);
 // is line and column given < 10 (NB_LINES or NB_COLUMNS)
 int is_position_on_map(tPosition pos);
 
+int is_square_on_map(tSquare square);
+
+int is_soldier_on_map(tMap map, tSoldier soldier);
+
+int is_soldier_on_map_same_as_square(tMap map, tSquare square);
+
+int can_soldier_move_to_pos(tMap map, tSoldier soldier, tPosition pos);
+
 // ------------------------------------ Setters ------------------------------------
-void set_soldier_on_map(tMap map, tPosition pos, tSoldier soldier);
+int set_soldier_on_map(tMap map, tPosition pos, tSoldier soldier);
 // clears a square and return the soldier at specific position.
 tSoldier clear_square_on_map(tMap map, tPosition pos);
 
@@ -47,6 +57,12 @@ int move_soldier_pos_to_square(tMap map, tPosition posFrom, tSquare squareTo);
 int move_soldier_square_to_pos(tMap map, tSquare squareFrom, tPosition posTo);
 
 int move_soldier_square_to_square(tMap map, tSquare squareFrom, tSquare squareTo);
+
+// Return pos and moves the soldier to pos on the map, or soldier position if he didn't move, or NULL
+tPosition move_soldier_to_pos(tMap map, tSoldier soldier, tPosition pos);
+
+
+int move_soldier_to_pos_2(tMap map, tSoldier soldier, tPosition pos);
 
 // ------------------------------------ Destroyers ------------------------------------
 void destroy_map(tMap *map);

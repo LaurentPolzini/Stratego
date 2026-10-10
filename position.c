@@ -44,6 +44,17 @@ unsigned int get_distance(tPosition posFrom, tPosition posTo) {
     return abs((int) (abcisse_posFrom - abcisse_posTo) + (int) (ordonnee_posFrom - ordonnee_posTo));
 }
 
+int are_pos_equals(tPosition pos1, tPosition pos2) {
+    if (!(pos1 && pos2)) return 0;
+    return ((get_abcisse(pos1) == get_abcisse(pos2)) && (get_ordonnee(pos1) == (get_ordonnee(pos2))));
+}
+
+void copy_pos(tPosition posToCopy, tPosition whereToCopy) {
+    if (!(posToCopy && whereToCopy)) return;
+    set_abcisse(whereToCopy, get_abcisse(posToCopy));
+    set_ordonnee(whereToCopy, get_ordonnee(posToCopy));
+}
+
 // ------------------------------------ Setters ------------------------------------
 // Set column of a pos
 void set_abcisse(tPosition pos, unsigned int abciss) {
