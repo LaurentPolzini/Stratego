@@ -68,16 +68,32 @@ void start_game(tBoard board) {
 
 tPosition get_user_pos(void) {
     int is_pos_ok = 0;
+    char input[10];
 
     int abciss = OUT_OF_POS;
     int ordonne = OUT_OF_POS;
     tPosition pos = create_position(abciss, ordonne);
     printf("Entrez des coordonnées entre 0 et 9 :\n");
     do {
-        printf("Abcisse Ordonnée : ");
+        printf("Abcisse Ordonnée (ex: 85 ou 8 5): ");
         fflush(stdout);
-        scanf("%d", &abciss);
-        scanf("%d", &ordonne);
+        scanf("%s", input);
+
+        int indTmp = 0;
+        while (input[indTmp] != '\0') {
+            if ((input[indTmp] >= '0') && (input[indTmp] <= '9')) {
+                if (abciss == OUT_OF_POS) {
+                    abciss = input[indTmp] - 48; // 0 in ascii
+                } else {
+                    if (ordonne == OUT_OF_POS) {
+                        ordonne = input[indTmp] - 48;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            ++indTmp;
+        }
 
         set_abcisse(pos, abciss);
         set_ordonnee(pos, ordonne);
