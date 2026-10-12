@@ -61,8 +61,8 @@ enum side_color get_playing_side(tBoard board) {
     return board->playing_side;
 }
 
-void start_game(tMap map, tArmy armyBlue, tArmy armyRed) {
-    if (!(map && armyBlue && armyRed)) return;
+void start_game(tBoard board) {
+    if (!board) return;
 
 }
 
@@ -92,7 +92,7 @@ tPosition get_user_pos(void) {
 }
 
 /*
-    Pour choisir un soldat valide il faut remplir les conditions suivantes :
+    Pour choisir un soldat valide a bouger il faut remplir les conditions suivantes :
         - Un soldat à la position demandée
         - Un soldat de son armée (sa couleur)
         - Un soldat qui puisse bouger (movement > 0)
@@ -156,6 +156,86 @@ tSoldier *which_soldiers_can_move(tMap map, tArmy army, int *how_many_can_move) 
     return moveable_soldierz;
 }
 
+void print_settable_soldierz(int *pickable_soldiers, tArmy army) {
+    for (int i = 0 ; i < SIZE_ARMY ; ++i) {
+        if (pickable_soldiers[i]) {
+            printf("%d - %s\n", i, get_name(get_unit(get_soldier_in_army(army, i))));
+        }
+    }
+}
+
+// returns id
+int pick_soldier(int *pickable_soldiers, tArmy army) {
+    if (!(pickable_soldiers && army)) return 50;
+    int chosen_id = 50;
+    int cond_filled = 0;
+    do {
+        print_settable_soldierz(pickable_soldiers, army);
+        printf("Choose your soldier to set (enter id) : ");
+        scanf("%d", &chosen_id);
+        cond_filled = (chosen_id >= 0) && (chosen_id < SIZE_ARMY) && pickable_soldiers[chosen_id];
+        if (!cond_filled) {
+            printf("Please pick and id between 0 and 39 for the printed soldiers.\n");
+        }
+    } while (!cond_filled);
+
+    return chosen_id;
+}
+
+// -------------------------------- SETTERS --------------------------------
+// while not 40 soldiers are set :
+/*
+    Pick a square on your side of the map
+    If picked square has a soldier on it, remove it.
+    Pick a soldier to set
+    Set the soldier.
+*/
+void set_army_on_map(tBoard board, enum side_color side) {
+    if (!board) return;
+    tArmy army_to_set = side == BLUE ? board->armyBlue : board->armyRed;
+    int nb_soldier_set = 0;
+    tPosition posChosen = NULL;
+    int cond_filled = 0;
+    int *settable_soldierz = malloc(SIZE_ARMY * sizeof(int));
+    for (int i = 0 ; i < SIZE_ARMY ; ++i) {
+        settable_soldierz[i] = 1; // all soldiers are settable at the initialization of the game
+    }
+
+    int idSoldierToSet = 50;
+    int yes_or_no = 0;
+    do {
+        do { // pick a square to place soldier on, or remove one.
+            print_hidden_map(board->map, side);
+            posChosen = get_user_pos();
+            cond_filled = BLUE ? (get_abcisse(posChosen) < 4) : (get_abcisse(posChosen) > 5);
+            if (!cond_filled) {
+                printf("\n /!\\ Please pick a square on your side of the map. /!\\\n");
+            }
+        } while(!cond_filled);
+        // if picked pos is occupied, remove current soldier to place another
+        if (is_square_occupied(get_square_from_pos(board->map, posChosen))) {
+            settable_soldierz[get_id(get_soldier_square(get_square_from_pos(board->map, posChosen)))] = 1; // settable again
+            clear_square_on_map(board->map, posChosen);
+            --nb_soldier_set;
+            print_hidden_map(board->map, side);
+        }
+        idSoldierToSet = pick_soldier(settable_soldierz, army_to_set);
+        settable_soldierz[idSoldierToSet] = 0;
+        set_soldier_on_map(board->map, posChosen, get_soldier_in_army(army_to_set, idSoldierToSet));
+        ++nb_soldier_set;
+
+        destroy_position(&posChosen);
+
+        if (nb_soldier_set == 40) {
+            print_hidden_map(board->map, side);
+            printf("Is your whole army in place ? (yes : 1, no : 0) : ");
+            scanf("%d", &yes_or_no);
+        }
+    } while(!(yes_or_no == 1));
+
+    free(settable_soldierz);
+    settable_soldierz = NULL;
+}
 
 // -------------------------------- PLAY --------------------------------
 // Returns 0 if lost fight. 1 if moved (won the fight)

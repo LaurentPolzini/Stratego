@@ -20,4 +20,6 @@ tSoldier *get_soldierZ_in_army(tArmy army);
 int is_soldier_on_army_side(tArmy army, tSoldier soldier);
 enum side_color get_army_color(tArmy army);
 
+void print_army(tArmy army);
+
 #endif

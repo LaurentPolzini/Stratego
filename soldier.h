@@ -72,6 +72,8 @@ int are_soldiers_equal(tSoldier soldier1, tSoldier soldier2);
 
 void print_color(enum side_color color);
 
+void print_soldiers(tSoldier *soldiers, int size);
+
 /*
     --------------------------- Setters ---------------------------
 */
@@ -80,5 +82,7 @@ void set_soldier_position(tSoldier soldier, tPosition pos);
 // Returns 1 if soldier1 won, 2 if soldier2 won, 3 if both died, 0 in other cases
 // Soldiers are NOT destroyed "/!\"
 int soldier_fight(tSoldier soldier1, tSoldier soldier2);
+
+tSoldier *copy_soldiers(tSoldier *soldiersToCopyFrom, int size);
 
 #endif

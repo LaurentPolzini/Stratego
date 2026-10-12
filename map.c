@@ -406,6 +406,15 @@ int set_soldier_on_map(tMap map, tPosition pos, tSoldier soldier) {
     return 0;
 }
 
+int set_soldier_on_map_FIRST_TIME(tMap map, tPosition pos, tSoldier soldier) {
+    if (soldier && !is_position_on_map(get_position(soldier))) {
+        // If soldier is indeed set, and he isn't set for the first time,
+        // it means he moves, so we need to clear square from where he comes
+        return set_soldier_on_map(map, pos, soldier);
+    }
+    return 0;
+}
+
 tSoldier clear_square_on_map(tMap map, tPosition pos) {
     return clear_square(get_square_from_pos(map, pos));
 }

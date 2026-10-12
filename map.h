@@ -43,6 +43,7 @@ int is_soldier_on_map_same_as_square(tMap map, tSquare square);
 int can_soldier_move_to_pos(tMap map, tSoldier soldier, tPosition pos);
 
 // ------------------------------------ Setters ------------------------------------
+int set_soldier_on_map_FIRST_TIME(tMap map, tPosition pos, tSoldier soldier);
 int set_soldier_on_map(tMap map, tPosition pos, tSoldier soldier);
 // clears a square and return the soldier at specific position.
 tSoldier clear_square_on_map(tMap map, tPosition pos);

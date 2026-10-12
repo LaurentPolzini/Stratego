@@ -897,6 +897,33 @@ int test_turn_with_fight(void) {
     return nb_error;
 }
 
+int test_set_army_on_map_init_game(void) {
+    int nb_error = 0;
+
+    tBoard board = create_board(create_map(), create_army(BLUE), create_army(RED));
+    set_army_on_map(board, RED);
+
+    print_map(get_board_map(board));
+
+    int expected_number = 0;
+    int actual_number = 0;
+    for (int i = 0 ; i < SIZE_ARMY ; ++i) {
+        expected_number += i;
+    }
+    for (int i = 0 ; i < NB_LINES ; ++i) {
+        for (int j = 0 ; j < NB_COLUMNS ; ++j) {
+            if (is_square_occupied(get_square(get_board_map(board), i, j))) {
+                actual_number += get_id(get_soldier_square(get_square(get_board_map(board), i, j)));
+            }
+        }
+    }
+    nb_error += actual_number == expected_number;
+
+    destroy_board(&board);
+    return nb_error;
+}
+
+
 /*   Tests launcher - main   */
 int main(void) {
     int is_error = 0;
@@ -1021,14 +1048,16 @@ int main(void) {
     // is_error = 0;
     // printf("\n");
 
-    is_error += test_turn_with_fight();
+    is_error += test_set_army_on_map_init_game();
     if (!is_error) {
-        printf("Ok Stratego fight\n");
+        printf("Ok Set Army On Map\n");
     } else {
-        printf("%d errors. Stratego fight\n", is_error);
+        printf("%d errors. Set Army On Map\n", is_error);
     }
     is_error = 0;
     printf("\n");
+    
+    printf("--- End of Tests ---\n");
 
     return 0;
 }

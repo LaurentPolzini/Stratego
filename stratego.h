@@ -36,6 +36,8 @@ enum side_color get_playing_side(tBoard board);
 */
 void play_a_turn(tBoard board);
 
+void set_army_on_map(tBoard board, enum side_color side);
+
 // Return 0 if did not move (lost fight), 1 if won fight.
 int manage_fight_with_movement(tBoard board, tSoldier soldierThatMoves, tSoldier soldierToFight);
 

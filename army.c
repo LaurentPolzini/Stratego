@@ -124,3 +124,9 @@ int is_soldier_on_army_side(tArmy army, tSoldier soldier) {
     }
     return 0;
 }
+
+void print_army(tArmy army) {
+    if (army) {
+        print_soldiers(get_soldierZ_in_army(army), SIZE_ARMY);
+    }
+}
