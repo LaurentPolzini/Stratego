@@ -126,7 +126,7 @@ tSoldier get_soldier_user(tMap map, tArmy army) {
         posWanted = get_user_pos();
         soldier = get_soldier_square(get_square_from_pos(map, posWanted));
         conds_ok = soldier && (get_side(soldier) == get_army_color(army)) 
-            && can_soldier_move(soldier) && is_soldier_moveable(map, moveables, how_many_can_move, soldier); 
+            && can_soldier_move(soldier) && is_soldier_moveable(map, moveables, how_many_can_move, soldier);
         if (!conds_ok) {
             printf("Choisissez un soldat de votre couleur qui peut se déplacer.\n");
         }
@@ -253,52 +253,88 @@ void set_army_on_map(tBoard board, enum side_color side) {
     settable_soldierz = NULL;
 }
 
+void set_next_side(tBoard board) {
+    if (!board) return;
+    board->playing_side = (board->playing_side == BLUE ? RED : BLUE);
+}
+
 // -------------------------------- PLAY --------------------------------
+void play_all_game(tBoard board) {
+    if (!board) return;
+    //set_army_on_map(board, RED);
+    //set_army_on_map(board, BLUE);
+
+    // FOR TESTS !!!!!!!!!
+    set_whole_blue_army_on_map(get_board_map(board), get_blue_army(board));
+    set_whole_red_army_on_map(get_board_map(board), get_red_army(board));
+
+    print_hidden_map(board->map, board->playing_side);
+    while (!play_a_turn(board)) {
+        set_next_side(board);
+        print_hidden_map(board->map, board->playing_side);
+    }
+    print_color(board->playing_side);
+    printf("won the game !!! Well played !!\n");
+}
+
+
 // Returns 0 if lost fight. 1 if moved (won the fight)
 int manage_fight_with_movement(tBoard board, tSoldier soldierThatMoves, tSoldier soldierToFight) {
-    int winner = soldier_fight(soldierThatMoves, soldierToFight);
+    if (!(board && soldierThatMoves && soldierToFight)) return -1;
     int does_move = 0;
     tArmy soldierMoverArmy = get_side(soldierThatMoves) == BLUE ? board->armyBlue : board->armyRed;
     tArmy soldierDefenderArmy = get_side(soldierToFight) == BLUE ? board->armyBlue : board->armyRed;
+    int winner = soldier_fight(soldierThatMoves, soldierToFight);
+
+    tPosition posMover = create_position(OUT_OF_POS, OUT_OF_POS);
+    copy_pos(get_position(soldierThatMoves), posMover);
+    tPosition posDefender = create_position(OUT_OF_POS, OUT_OF_POS);
+    copy_pos(get_position(soldierToFight), posDefender);
+
     switch (winner)
     {
     case 1:
         // soldierThatMoves wins, soldierToFight is removed, soldierThatMoves moves
-        move_soldier_to_pos_2(board->map, soldierThatMoves, get_position(soldierToFight));
-        destroy_soldier_in_army(soldierDefenderArmy, soldierToFight);
+        destroy_soldier_in_army(soldierDefenderArmy, soldierToFight);// Before because move soldier sets 
+        // square->soldier = soldierThatMoves
+        // but square->soldier = soldierDefender.
+        // So now we have soldierDefender = soldierThatMoves
+        move_soldier_to_pos(board->map, soldierThatMoves, posDefender);
         does_move = 1;
         break;
     case 2:
         // soldierThatMoves lost, is removed and square get cleared
-        clear_square_on_map(board->map, get_position(soldierThatMoves));
         destroy_soldier_in_army(soldierMoverArmy, soldierThatMoves);
+        clear_square_on_map(board->map, posMover);
         break;
     case 3:
         // Both soldiers are removed, both square are cleared.
-        clear_square_on_map(board->map, get_position(soldierThatMoves));
-        clear_square_on_map(board->map, get_position(soldierToFight));
         destroy_soldier_in_army(soldierMoverArmy, soldierThatMoves);
         destroy_soldier_in_army(soldierDefenderArmy, soldierToFight);
+        clear_square_on_map(board->map, posMover);
+        clear_square_on_map(board->map, posDefender);
+        break;
     default:
         break;
     }
+    destroy_position(&posMover);
+    destroy_position(&posDefender);
 
     return does_move;
 }
 
-void play_a_turn(tBoard board) {
-    if (!board) return;
+// returns if flag captured
+int play_a_turn(tBoard board) {
+    if (!board) return 0;
+    int ret_val = 0;
     printf("\n");
     print_color(board->playing_side);
     printf("is up to play !\n");
     tMap map = board->map;
-    tArmy armyBlue = board->armyBlue;
-    tArmy armyRed = board->armyRed;
 
-    tSoldier soldierToMove = get_soldier_user(map, (board->playing_side == BLUE ? armyBlue : armyRed));
-    do {
+    tArmy armyToMove = board->playing_side == BLUE ? board->armyBlue : board->armyRed;
 
-    } while (get_movement(get_unit(soldierToMove)) == 0);
+    tSoldier soldierToMove = get_soldier_user(map, armyToMove);
 
     tPosition posTargetted = NULL;
     int can_move_to_target = 0;
@@ -314,27 +350,27 @@ void play_a_turn(tBoard board) {
         }
     } while(!can_move_to_target);
     tSoldier soldierOnPosToMove = get_soldier_square(get_square_from_pos(map, posTargetted));
+    ret_val = is_flag(get_unit(soldierOnPosToMove));
+    
     switch (can_move_to_target)
     {
     case 1: // normal move
-        /* code */
-        if (move_soldier_to_pos_2(map, soldierToMove, posTargetted)) {
+        if (move_soldier_to_pos(map, soldierToMove, posTargetted)) {
             printf("%s moved to %d %d\n", name_target_soldier, get_abcisse(posTargetted), get_ordonnee(posTargetted));
         } else {
             printf("%s couldn't move to %d %d\n", name_target_soldier, get_abcisse(posTargetted), get_ordonnee(posTargetted));
         }
         break;
     case 2: // fight
-        printf("Fight between %s and %s\n", name_target_soldier, get_name(get_unit(get_soldier_square(get_square_from_pos(map, posTargetted)))));
+        printf("\n-> Fight between %s and %s\n", name_target_soldier, get_name(get_unit(get_soldier_square(get_square_from_pos(map, posTargetted)))));
         manage_fight_with_movement(board, soldierToMove, soldierOnPosToMove);
         break;
     default:
         printf("Error playing a turn.\n");
         break;
     }
-    board->playing_side = (board->playing_side == BLUE ? RED : BLUE);
 
     destroy_position(&posTargetted);
 
-    return;
+    return ret_val;
 }

@@ -419,7 +419,7 @@ tSoldier clear_square_on_map(tMap map, tPosition pos) {
     return clear_square(get_square_from_pos(map, pos));
 }
 
-int move_soldier_to_pos_2(tMap map, tSoldier soldier, tPosition pos) {
+int move_soldier_to_pos(tMap map, tSoldier soldier, tPosition pos) {
     if (!(can_soldier_move_to_pos(map, soldier, pos) > 0)) return 0;
 
     tPosition posTmp = create_position(get_abcisse(get_position(soldier)), get_ordonnee(get_position(soldier)));
@@ -431,69 +431,13 @@ int move_soldier_to_pos_2(tMap map, tSoldier soldier, tPosition pos) {
     return did_move;
 }
 
-tPosition move_soldier_to_pos(tMap map, tSoldier soldier, tPosition pos) {
-    if (!(map && soldier && pos)) return NULL;
-    tPosition posSoldier = get_position(soldier);
-    switch (can_soldier_move_to_pos(map, soldier, pos))
-    {
-    case 0:
-        return posSoldier;
-        break;
-    case 1:
-        set_soldier_on_map(map, pos, soldier);
-        return pos;
-        break;
-    case 2:
-        {
-        // fight !
-        tSquare squareSoldierToFight = get_square_from_pos(map, pos);
-        tSoldier soldierToFight = get_soldier_square(squareSoldierToFight);
-
-        // in order to get @ of soldier1 if he is destroyed
-        int winner = soldier_fight(soldier, soldierToFight);
-        switch (winner)
-        {
-        case 1:
-            // kills soldier2 and moves soldier1
-            clear_square(squareSoldierToFight);
-            destroy_soldier(&soldierToFight);
-            set_soldier_on_map(map, pos, soldier);
-            return get_position(soldier);
-            break;
-        case 2:
-            {
-            // clear moving soldier, he lost
-            tSoldier soldierToDestroy = clear_square_on_map(map, posSoldier);
-            destroy_soldier(&soldierToDestroy);
-            break;
-            }
-        case 3:
-            {
-            // both unit died, clear square 1 and 2
-            clear_square_on_map(map, posSoldier);
-            tSoldier soldierToDestroy = clear_square_on_map(map, posSoldier);
-            destroy_soldier(&soldierToFight);
-            destroy_soldier(&soldierToDestroy);
-            break;
-            }
-        default:
-            break;
-        }
-        }
-    default:
-        break;
-    }
-    return posSoldier;
-}
-
 void set_whole_blue_army_on_map(tMap map, tArmy army) {
     if (!(map && army)) return;
     int ind_army = 0;
     for (int i = 0 ; i < 4 ; ++i) {
         ind_army = i * NB_COLUMNS;
         for (int j = 0 ; j < NB_COLUMNS ; ++j) {
-            
-            set_soldier_on_map(map, get_position_square(get_square(map, i, j)), get_soldier_in_army(army, ind_army));
+            set_soldier_on_map(map, get_position_square(get_square(map, 3 - i, j)), get_soldier_in_army(army, ind_army));
             ++ind_army;
         }
     }

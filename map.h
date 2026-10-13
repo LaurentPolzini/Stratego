@@ -65,12 +65,10 @@ int move_soldier_square_to_pos(tMap map, tSquare squareFrom, tPosition posTo);
 
 int move_soldier_square_to_square(tMap map, tSquare squareFrom, tSquare squareTo);
 
-// Return pos and moves the soldier to pos on the map, or soldier position if he didn't move, or NULL
-tPosition move_soldier_to_pos(tMap map, tSoldier soldier, tPosition pos);
+// returns if soldier moved.
+int move_soldier_to_pos(tMap map, tSoldier soldier, tPosition pos);
 
-
-int move_soldier_to_pos_2(tMap map, tSoldier soldier, tPosition pos);
-
+// mostly for tests
 void set_whole_blue_army_on_map(tMap map, tArmy army);
 
 void set_whole_red_army_on_map(tMap map, tArmy army);

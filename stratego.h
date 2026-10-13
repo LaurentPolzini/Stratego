@@ -29,17 +29,23 @@ tArmy get_red_army(tBoard board);
 enum side_color get_playing_side(tBoard board);
 
 // ---------------- PLAY ----------------
+// play a game until a flag is found.
+void play_all_game(tBoard board);
 /*
     A turn is :
         - Selecting a soldier to move
         - Selecting a square to move to.
 */
-void play_a_turn(tBoard board);
-
-void set_army_on_map(tBoard board, enum side_color side);
+// returns if flag captured
+int play_a_turn(tBoard board);
 
 // Return 0 if did not move (lost fight), 1 if won fight.
 int manage_fight_with_movement(tBoard board, tSoldier soldierThatMoves, tSoldier soldierToFight);
+
+// ---------------- SETTERS ----------------
+void set_army_on_map(tBoard board, enum side_color side);
+
+void set_next_side(tBoard board);
 
 // ---------------- DESTROYERS ----------------
 void destroy_board(tBoard *board);

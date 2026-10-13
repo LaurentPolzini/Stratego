@@ -765,7 +765,7 @@ int test_move(void) {
     //print_map(map);
 
     tPosition posToGo = create_position(3, 3);
-    if (!move_soldier_to_pos_2(map, marshall, posToGo)) {
+    if (!move_soldier_to_pos(map, marshall, posToGo)) {
         ++nb_error;
         printf("Error - marshall should have moved\n");
     }
@@ -783,7 +783,7 @@ int test_move(void) {
     //print_map(map);
     printf("\n");
 
-    if (!move_soldier_to_pos_2(map, marshall, posColonel)) {
+    if (!move_soldier_to_pos(map, marshall, posColonel)) {
         ++nb_error;
         printf("Error - marshall should have moved and kill colonel.\n");
     }
@@ -795,7 +795,7 @@ int test_move(void) {
     printf("\n");
 
     tPosition posBeforeLake = create_position(4, 4);
-    if (!move_soldier_to_pos_2(map, marshall, posBeforeLake)) {
+    if (!move_soldier_to_pos(map, marshall, posBeforeLake)) {
         ++nb_error;
         printf("Error - marshall should have moved to pos before lake.\n");
     }
@@ -807,7 +807,7 @@ int test_move(void) {
     printf("\n");
 
     tPosition posLake = create_position(4, 3);
-    if (move_soldier_to_pos_2(map, marshall, posLake)) {
+    if (move_soldier_to_pos(map, marshall, posLake)) {
         ++nb_error;
         printf("Error - marshall should NOT have moved into lake.\n");
     }
@@ -829,6 +829,7 @@ int test_move(void) {
 
     return nb_error;
 }
+
 
 /*
     --------------------------------------- STRATEGO TEST ---------------------------------------
@@ -887,10 +888,11 @@ int test_turn_with_fight(void) {
     enum side_color side_to_play = RED;
     print_hidden_map(get_board_map(board), side_to_play);
 
-    for (int i = 0 ; i < 1 ; ++i) {
+    for (int i = 0 ; i < 2 ; ++i) {
         play_a_turn(board);
-        print_hidden_map(get_board_map(board), get_playing_side(board));
         side_to_play = (side_to_play == BLUE ? RED : BLUE);
+        set_next_side(board);
+        print_hidden_map(get_board_map(board), side_to_play);
     }
 
     destroy_board(&board);
@@ -923,6 +925,12 @@ int test_set_army_on_map_init_game(void) {
     return nb_error;
 }
 
+void test_play_game(void) {
+    tBoard board = create_board(create_map(), create_army(BLUE), create_army(RED));
+    play_all_game(board);
+
+    destroy_board(&board);
+}
 
 /*   Tests launcher - main   */
 int main(void) {
@@ -1048,14 +1056,25 @@ int main(void) {
     // is_error = 0;
     // printf("\n");
 
-    is_error += test_set_army_on_map_init_game();
-    if (!is_error) {
-        printf("Ok Set Army On Map\n");
-    } else {
-        printf("%d errors. Set Army On Map\n", is_error);
-    }
-    is_error = 0;
-    printf("\n");
+    // is_error += test_set_army_on_map_init_game();
+    // if (!is_error) {
+    //     printf("Ok Set Army On Map\n");
+    // } else {
+    //     printf("%d errors. Set Army On Map\n", is_error);
+    // }
+    // is_error = 0;
+    // printf("\n");
+
+    // is_error += test_turn_with_fight();
+    // if (!is_error) {
+    //     printf("Ok turn with fight\n");
+    // } else {
+    //     printf("%d errors. turn with fight\n", is_error);
+    // }
+    // is_error = 0;
+    // printf("\n");
+
+    test_play_game();
     
     printf("--- End of Tests ---\n");
 
