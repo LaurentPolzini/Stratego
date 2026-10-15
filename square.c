@@ -36,7 +36,11 @@ void print_square(tSquare square) {
         printf("|--|");
         break;
     case OCCUPIED:
-        printf("|%s|", get_unit_abreviation(get_unit(square->soldier)));
+        if (get_side(square->soldier) == BLUE) {
+            printf("|\033[34m%s\033[0m|", get_unit_abreviation(get_unit(square->soldier)));
+        } else {
+            printf("|\033[31m%s\033[0m|", get_unit_abreviation(get_unit(square->soldier)));
+        }
         break;
     default:
         printf("|??|");

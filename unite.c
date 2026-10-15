@@ -2,7 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include "unite.h"
-
+/*
+    Unit strengh :
+        flag : 0
+        bomb : 100
+        marshall : 10
+        general : 9
+        colonel : 8
+        major : 7
+        captain : 6
+        lieutenant : 5
+        sergeant : 4
+        scout : 3
+        miner : 2
+        spy 1
+*/
 struct sUnite {
     char *name;
     unsigned int strengh;
@@ -129,6 +143,63 @@ tUnite create_flag(void) {
     return unit;
 }
 
+/*     Destroy     */
+void destroy_unit(tUnite *unit) {
+    if (unit && *unit) {
+        free(*unit);
+        *unit = NULL;
+    }
+}
+/*
+    Unit strengh :
+        flag : 0
+        bomb : 100
+        marshall : 10
+        general : 9
+        colonel : 8
+        major : 7
+        captain : 6
+        lieutenant : 5
+        sergeant : 4
+        scout : 3
+        miner : 2
+        spy 1
+*/
+tUnite copy_unit(tUnite unit) {
+    if (!unit) return NULL;
+    switch (unit->strengh)
+    {
+    case 0:
+        return create_flag();
+    case 1:
+        return create_spy();
+    case 2:
+        return create_miner();
+    case 3:
+        return create_scout();
+    case 4:
+        return create_sergeant();
+    case 5:
+        return create_lieutenant();
+    case 6:
+        return create_captain();
+    case 7:
+        return create_major();
+    case 8:
+        return create_colonel();
+    case 9:
+        return create_general();
+    case 10:
+        return create_marshall();
+    case 100:
+        return create_bomb();
+    default:
+        break;
+    }
+    return NULL;
+}
+
+/*    Getters   */
 char *get_unit_abreviation(tUnite unit) {
     if (!unit) return "--";
     if (is_spy(unit)) {
@@ -186,15 +257,6 @@ void get_all_abreviations(void) {
     printf("Flag       : fl\n");
 }
 
-/*     Destroy     */
-void destroy_unit(tUnite *unit) {
-    if (unit && *unit) {
-        free(*unit);
-        *unit = NULL;
-    }
-}
-
-/*    Getters   */
 char *get_name(tUnite unit) {
     if (unit) {
         return unit->name;

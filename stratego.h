@@ -18,8 +18,6 @@ tSoldier get_soldier_user(tMap map, tArmy army);
 
 int is_soldier_moveable(tMap map, tSoldier *moveableSoldiers, int size, tSoldier soldier);
 
-tSoldier *which_soldiers_can_move(tMap map, tArmy army, int *how_many_can_move);
-
 tMap get_board_map(tBoard board);
 
 tArmy get_blue_army(tBoard board);
@@ -28,9 +26,20 @@ tArmy get_red_army(tBoard board);
 
 enum side_color get_playing_side(tBoard board);
 
+// returns 1 or 2 for the player to be red (first player)
+int get_first_player(void);
+
+char *get_red_name(tBoard board);
+
+char *get_blue_name(tBoard board);
+
 // ---------------- PLAY ----------------
 // play a game until a flag is found.
 void play_all_game(tBoard board);
+
+void play_all_game_vs_robot(tBoard board);
+
+int play_robot_turn(tBoard board);
 /*
     A turn is :
         - Selecting a soldier to move

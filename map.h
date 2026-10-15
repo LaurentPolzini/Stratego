@@ -30,6 +30,8 @@ tSquare *get_squares_he_can_move_to(tMap map, tSoldier soldier, int *nb_of_squar
 
 int does_have_moveable_squares(tMap map, tSoldier soldier);
 
+tSoldier *which_soldiers_can_move(tMap map, tArmy army, int *how_many_can_move);
+
 // ------------------------------------ Questions ------------------------------------
 // is line and column given < 10 (NB_LINES or NB_COLUMNS)
 int is_position_on_map(tPosition pos);

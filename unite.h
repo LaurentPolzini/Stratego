@@ -11,6 +11,21 @@ void get_all_abreviations(void);
 /*
     --------------------------- Unit creation ---------------------------
 */
+/*
+    Unit strengh :
+        flag : 0
+        bomb : 100
+        marshall : 10
+        general : 9
+        colonel : 8
+        major : 7
+        captain : 6
+        lieutenant : 5
+        sergeant : 4
+        scout : 3
+        miner : 2
+        spy 1
+*/
 tUnite create_flag(void);
 tUnite create_bomb(void);
 tUnite create_marshall(void);
@@ -26,6 +41,8 @@ tUnite create_spy(void);
 
 // Destroyer
 void destroy_unit(tUnite *unit);
+
+tUnite copy_unit(tUnite unit);
 
 /*
     --------------------------- Getters ---------------------------
@@ -53,6 +70,7 @@ int is_flag(tUnite unit);
 int are_units_equal(tUnite unit1, tUnite unit2);
 
 int can_unit_move(tUnite unit);
+
 
 /*
     --------------------------- Fight ---------------------------

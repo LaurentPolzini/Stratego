@@ -29,7 +29,7 @@ unsigned int get_ordonnee(tPosition pos) {
 // Get distance between two aligned (line or column) squares
 unsigned int get_distance(tPosition posFrom, tPosition posTo) {
     if (!(posFrom && posTo)) {
-        return UINT32_MAX;
+        return 0;
     }
     unsigned int abcisse_posFrom = get_abcisse(posFrom);
     unsigned int ordonnee_posFrom = get_ordonnee(posFrom);
@@ -39,7 +39,7 @@ unsigned int get_distance(tPosition posFrom, tPosition posTo) {
 
     if (!((abcisse_posFrom == abcisse_posTo) || (ordonnee_posFrom == ordonnee_posTo))) {
         // not aligned squares
-        return UINT32_MAX;
+        return 0;
     }
     return abs((int) (abcisse_posFrom - abcisse_posTo) + (int) (ordonnee_posFrom - ordonnee_posTo));
 }

@@ -1,17 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "stratego.h"
 #include "army.h"
 #include "map.h"
 #include "position.h"
+#include "robot.h"
 
 struct sBoard {
     tMap map;
     tArmy armyBlue;
     tArmy armyRed;
 
+    char *red_player_name;
+    char *blue_player_name;
+
     enum side_color playing_side;
 };
+
+void set_red_name(tBoard board, char *name);
+void set_blue_name(tBoard board, char *name);
 
 // -------------------------------- CREATORS --------------------------------
 tBoard create_board(tMap map, tArmy armyBlue, tArmy armyRed) {
@@ -24,6 +32,9 @@ tBoard create_board(tMap map, tArmy armyBlue, tArmy armyRed) {
     board->armyBlue = armyBlue;
     board->armyRed = armyRed;
 
+    board->red_player_name = malloc(sizeof(char) * 25);
+    board->blue_player_name = malloc(sizeof(char) * 25);
+
     board->playing_side = RED;
     return board;
 }
@@ -34,6 +45,8 @@ void destroy_board(tBoard *board) {
         destroy_army(&((*board)->armyBlue));
         destroy_army(&((*board)->armyRed));
         destroy_map(&((*board)->map));
+        free((*board)->blue_player_name);
+        free((*board)->red_player_name);
         free(*board);
         *board = NULL;
     }
@@ -117,6 +130,10 @@ tSoldier get_soldier_user(tMap map, tArmy army) {
     if (!map) return NULL;
     int how_many_can_move = 0;
     tSoldier *moveables = which_soldiers_can_move(map, army, &how_many_can_move);
+    if (how_many_can_move == 0) {
+        printf("You don't have any moveable soldier. You lose.\n");
+        return NULL;
+    }
 
     tPosition posWanted = NULL;
     tSoldier soldier = NULL;
@@ -147,31 +164,6 @@ int is_soldier_moveable(tMap map, tSoldier *moveableSoldiers, int size, tSoldier
     return 0;
 }
 
-tSoldier *which_soldiers_can_move(tMap map, tArmy army, int *how_many_can_move) {
-    if (!(map && army)) return NULL;
-    tSoldier *soldierz = get_soldierZ_in_army(army);
-
-    tSoldier *moveable_soldierzTMP = malloc(sizeof(tSoldier) * SIZE_ARMY);
-    int ind_moveable = 0;
-
-    for (int i = 0 ; i < SIZE_ARMY ; ++i) {
-        if (soldierz[i]) {
-            if (does_have_moveable_squares(map, soldierz[i])) {
-                moveable_soldierzTMP[ind_moveable++] = soldierz[i];
-            }
-        }
-    }
-    tSoldier *moveable_soldierz = malloc(sizeof(tSoldier) * (ind_moveable + 1));
-    for (int i = 0 ; i < ind_moveable + 1 ; ++i) {
-        moveable_soldierz[i] = moveable_soldierzTMP[i];
-    }
-    free(moveable_soldierzTMP);
-    if (how_many_can_move) {
-        *how_many_can_move = ind_moveable;
-    }
-    return moveable_soldierz;
-}
-
 void print_settable_soldierz(int *pickable_soldiers, tArmy army) {
     for (int i = 0 ; i < SIZE_ARMY ; ++i) {
         if (pickable_soldiers[i]) {
@@ -196,6 +188,21 @@ int pick_soldier(int *pickable_soldiers, tArmy army) {
     } while (!cond_filled);
 
     return chosen_id;
+}
+
+// returns 1 or 2 for the one that will play red army (first player).
+int get_first_player(void) {
+    return (rand() % 2) + 1;
+}
+
+char *get_red_name(tBoard board) {
+    if (!board) return NULL;
+    return board->red_player_name;
+}
+
+char *get_blue_name(tBoard board) {
+    if (!board) return NULL;
+    return board->blue_player_name;
 }
 
 // -------------------------------- SETTERS --------------------------------
@@ -258,9 +265,36 @@ void set_next_side(tBoard board) {
     board->playing_side = (board->playing_side == BLUE ? RED : BLUE);
 }
 
+void set_red_name(tBoard board, char *name) {
+    if (!board) return;
+    strcpy(board->red_player_name, name);
+}
+
+void set_blue_name(tBoard board, char *name) {
+    if (!board) return;
+    strcpy(board->blue_player_name, name);
+}
+
 // -------------------------------- PLAY --------------------------------
 void play_all_game(tBoard board) {
     if (!board) return;
+    int fp = get_first_player();
+
+    char *name1 = malloc(sizeof(char) * 25);
+    printf("Please enter your name (<25 chararacters) : ");
+    scanf("%s", name1);
+    printf("Ok-\n");
+
+    char *name2 = malloc(sizeof(char) * 25);
+    printf("Please enter your name (<25 chararacters) : ");
+    scanf("%s", name2);
+
+    set_red_name(board, (fp == 1 ? name1 : name2));
+    set_blue_name(board, (fp == 1 ? name1 : name2));
+
+    free(name1);
+    free(name2);
+
     //set_army_on_map(board, RED);
     //set_army_on_map(board, BLUE);
 
@@ -274,7 +308,7 @@ void play_all_game(tBoard board) {
         print_hidden_map(board->map, board->playing_side);
     }
     print_color(board->playing_side);
-    printf("won the game !!! Well played !!\n");
+    printf("%s won the game !!! Well played !!\n", (board->playing_side == BLUE ? board->blue_player_name : board->red_player_name));
 }
 
 
@@ -295,7 +329,7 @@ int manage_fight_with_movement(tBoard board, tSoldier soldierThatMoves, tSoldier
     {
     case 1:
         // soldierThatMoves wins, soldierToFight is removed, soldierThatMoves moves
-        destroy_soldier_in_army(soldierDefenderArmy, soldierToFight);// Before because move soldier sets 
+        destroy_soldier_in_army(soldierDefenderArmy, clear_square_on_map(board->map, posDefender));// Before because move soldier sets 
         // square->soldier = soldierThatMoves
         // but square->soldier = soldierDefender.
         // So now we have soldierDefender = soldierThatMoves
@@ -304,15 +338,12 @@ int manage_fight_with_movement(tBoard board, tSoldier soldierThatMoves, tSoldier
         break;
     case 2:
         // soldierThatMoves lost, is removed and square get cleared
-        destroy_soldier_in_army(soldierMoverArmy, soldierThatMoves);
-        clear_square_on_map(board->map, posMover);
+        destroy_soldier_in_army(soldierMoverArmy, clear_square_on_map(board->map, posMover));
         break;
     case 3:
         // Both soldiers are removed, both square are cleared.
-        destroy_soldier_in_army(soldierMoverArmy, soldierThatMoves);
-        destroy_soldier_in_army(soldierDefenderArmy, soldierToFight);
-        clear_square_on_map(board->map, posMover);
-        clear_square_on_map(board->map, posDefender);
+        destroy_soldier_in_army(soldierMoverArmy, clear_square_on_map(board->map, posMover));
+        destroy_soldier_in_army(soldierDefenderArmy, clear_square_on_map(board->map, posDefender));
         break;
     default:
         break;
@@ -327,7 +358,8 @@ int manage_fight_with_movement(tBoard board, tSoldier soldierThatMoves, tSoldier
 int play_a_turn(tBoard board) {
     if (!board) return 0;
     int ret_val = 0;
-    printf("\n");
+    printf("\n%s - ", (board->playing_side == BLUE ? board->blue_player_name : board->red_player_name));
+    fflush(stdout);
     print_color(board->playing_side);
     printf("is up to play !\n");
     tMap map = board->map;
@@ -335,6 +367,12 @@ int play_a_turn(tBoard board) {
     tArmy armyToMove = board->playing_side == BLUE ? board->armyBlue : board->armyRed;
 
     tSoldier soldierToMove = get_soldier_user(map, armyToMove);
+    if (soldierToMove == NULL) {
+        // Not any moveable soldier.
+        return 2;
+    }
+    tPosition posBefore = create_position(OUT_OF_POS, OUT_OF_POS);
+    copy_pos(get_position(soldierToMove), posBefore);
 
     tPosition posTargetted = NULL;
     int can_move_to_target = 0;
@@ -351,12 +389,12 @@ int play_a_turn(tBoard board) {
     } while(!can_move_to_target);
     tSoldier soldierOnPosToMove = get_soldier_square(get_square_from_pos(map, posTargetted));
     ret_val = is_flag(get_unit(soldierOnPosToMove));
-    
+
     switch (can_move_to_target)
     {
     case 1: // normal move
         if (move_soldier_to_pos(map, soldierToMove, posTargetted)) {
-            printf("%s moved to %d %d\n", name_target_soldier, get_abcisse(posTargetted), get_ordonnee(posTargetted));
+            printf("%s moved from %d %d to %d %d\n", name_target_soldier, get_abcisse(posBefore), get_ordonnee(posBefore), get_abcisse(posTargetted), get_ordonnee(posTargetted));
         } else {
             printf("%s couldn't move to %d %d\n", name_target_soldier, get_abcisse(posTargetted), get_ordonnee(posTargetted));
         }
@@ -370,7 +408,112 @@ int play_a_turn(tBoard board) {
         break;
     }
 
+    destroy_position(&posBefore);
     destroy_position(&posTargetted);
 
     return ret_val;
+}
+
+int play_robot_turn(tBoard board) {
+    if (!board) return 0;
+    int ret_val = 0;
+    printf("\n%s - ", (board->playing_side == BLUE ? board->blue_player_name : board->red_player_name));
+    fflush(stdout);
+    print_color(board->playing_side);
+    printf("is up to play !\n");
+    tMap map = board->map;
+
+    tArmy armyToMove = board->playing_side == BLUE ? board->armyBlue : board->armyRed;
+
+    tSoldier soldierToMove = NULL;
+    tSquare squareTargetted = NULL;
+    random_soldier_to_square(map, armyToMove, &soldierToMove, &squareTargetted);
+    if (soldierToMove == NULL || squareTargetted == NULL) {
+        printf("You don't have any moveable soldier, you lose the game.\n");
+        return 2;
+    }
+
+    tPosition posBefore = create_position(OUT_OF_POS, OUT_OF_POS);
+    copy_pos(get_position(soldierToMove), posBefore);
+
+    tPosition posTargetted = get_position_square(squareTargetted);
+
+    char *name_target_soldier = get_name(get_unit(soldierToMove));
+    
+    tSoldier soldierToEventuallyfight = get_soldier_square(squareTargetted);
+
+    ret_val = is_flag(get_unit(soldierToEventuallyfight));
+
+    switch (can_soldier_move_to_pos(map, soldierToMove, posTargetted))
+    {
+    case 1: // normal move
+        if (move_soldier_to_pos(map, soldierToMove, get_position_square(squareTargetted))) {
+            printf("%s moved from %d %d to %d %d\n", name_target_soldier, get_abcisse(posBefore), get_ordonnee(posBefore), get_abcisse(posTargetted), get_ordonnee(posTargetted));
+        } else {
+            printf("%s couldn't move to %d %d\n", name_target_soldier, get_abcisse(posTargetted), get_ordonnee(posTargetted));
+        }
+        break;
+    case 2: // fight
+        printf("\n-> Fight between %s and %s on square %d %d\n", name_target_soldier, get_name(get_unit(get_soldier_square(get_square_from_pos(map, posTargetted)))), get_abcisse(posTargetted), get_ordonnee(posTargetted));
+        manage_fight_with_movement(board, soldierToMove, soldierToEventuallyfight);
+        if (!is_square_empty(get_square_from_pos(board->map, posBefore))) {
+            destroy_position(&posBefore);
+            return 2;
+        }
+        break;
+    default:
+        printf("Error playing a turn.\n");
+        break;
+    }
+    destroy_position(&posBefore);
+    return ret_val;
+}
+
+void play_all_game_vs_robot(tBoard board) {
+    if (!board) return;
+    int fp = get_first_player();
+
+    char *name1 = malloc(sizeof(char) * 25);
+    printf("Please enter your name (<25 chararacters) : ");
+    scanf("%s", name1);
+    printf("Ok-\n");
+
+    char *name2 = "robot";
+
+    set_red_name(board, (fp == 1 ? name1 : name2));
+    set_blue_name(board, (fp == 2 ? name1 : name2));
+
+    free(name1);
+
+    //set_army_on_map(board, RED);
+    //set_army_on_map(board, BLUE);
+
+    // FOR TESTS !!!!!!!!
+    if (fp == 1) {
+        set_whole_red_army_on_map(get_board_map(board), get_red_army(board));
+        set_army_randomly(get_board_map(board), get_blue_army(board));
+    } else {
+        set_whole_blue_army_on_map(get_board_map(board), get_blue_army(board));
+        set_army_randomly(get_board_map(board), get_red_army(board));
+    }
+
+    print_hidden_map(board->map, board->playing_side);
+
+    int went_well = 0;
+    while(!went_well) {
+        if (fp == 1) {
+            went_well = play_a_turn(board);
+        } else {
+            went_well = play_robot_turn(board);
+        }
+        if (went_well == 2) {
+            printf("Game ends abruptly, error.\n");
+        }
+        set_next_side(board);
+        print_hidden_map(board->map, board->playing_side);
+        fp = (fp % 2) + 1;
+    }
+    set_next_side(board);
+    print_color(board->playing_side);
+    printf("%s won the game !!! Well played !!\n", (board->playing_side == BLUE ? board->blue_player_name : board->red_player_name));
 }

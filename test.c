@@ -6,6 +6,7 @@
 #include "position.h"
 #include "square.h"
 #include "stratego.h"
+#include "robot.h"
 
 /*
     --------------------------------------- UNIT TEST ---------------------------------------
@@ -932,6 +933,83 @@ void test_play_game(void) {
     destroy_board(&board);
 }
 
+/*
+    --------------------------------------- ROBOT TEST ---------------------------------------
+*/
+void test_robot_set_army(void) {
+    tMap map = create_map();
+    tArmy army = create_army(RED);
+
+    set_army_randomly(map, army);
+    print_map(map);
+
+    destroy_army(&army);
+    destroy_map(&map);
+}
+
+void test_robot_move(void) {
+    // tMap map = create_map();
+    // tArmy army = create_army(RED);
+
+    // set_army_randomly(map, army);
+    // print_map(map);
+
+    // random_move(map, army);
+    // print_map(map);
+
+    // destroy_army(&army);
+    // destroy_map(&map);
+}
+
+void test_robot_move_and_fight(void) {
+    tMap map = create_map();
+    tArmy armyR = create_army(RED);
+    tArmy armyB = create_army(BLUE);
+
+    set_army_randomly(map, armyR);
+    set_army_randomly(map, armyB);
+    //print_map(map);
+
+    tBoard board = create_board(map, armyB, armyR);
+    // for (int i = 0 ; i < 5 ; ++i) {
+    //     play_robot_turn(board);
+    //     set_next_side(board);
+    //     print_map(map);
+    // }
+    int went_well = 0;
+    while(!went_well) {
+        went_well = play_robot_turn(board);
+        if (went_well == 2) {
+            printf("Game ends abruptly, error.\n");
+        }
+        set_next_side(board);
+        print_map(map);
+    }
+    //print_map(map);
+
+    destroy_army(&armyR);
+    destroy_army(&armyB);
+    destroy_map(&map);
+}
+
+void test_all_game_against_robot(void) {
+    tMap map = create_map();
+    tArmy armyR = create_army(RED);
+    tArmy armyB = create_army(BLUE);
+
+    set_army_randomly(map, armyR);
+    set_army_randomly(map, armyB);
+
+    tBoard board = create_board(map, armyB, armyR);
+
+    play_all_game_vs_robot(board);
+
+    destroy_army(&armyR);
+    destroy_army(&armyB);
+    destroy_map(&map);
+}
+
+
 /*   Tests launcher - main   */
 int main(void) {
     int is_error = 0;
@@ -1046,7 +1124,7 @@ int main(void) {
     }
 
     // ---------------- stratego test ----------------
-    printf("--- Stratego Test ---\n");
+    // printf("--- Stratego Test ---\n");
     // is_error += test_stratego();
     // if (!is_error) {
     //     printf("Ok Stratego\n");
@@ -1074,8 +1152,15 @@ int main(void) {
     // is_error = 0;
     // printf("\n");
 
-    test_play_game();
-    
+    //test_play_game();
+
+    // ---------------- robot test ----------------
+    printf("--- Robot Test ---\n");
+    //test_robot_set_army();
+    //test_robot_move();
+    //test_robot_move_and_fight();
+    test_all_game_against_robot();
+
     printf("--- End of Tests ---\n");
 
     return 0;

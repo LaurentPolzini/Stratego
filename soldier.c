@@ -167,7 +167,7 @@ void print_soldiers(tSoldier *soldiers, int size) {
     if (!soldiers) return;
     for (int i = 0 ; i < size ; ++i) {
         if (soldiers[i]) {
-            printf("%d : %s\n", get_id(soldiers[i]), get_soldiers_name(soldiers[i]));
+            printf("%d : %s (%d %d)\n", get_id(soldiers[i]), get_soldiers_name(soldiers[i]), get_abcisse(get_position(soldiers[i])), get_ordonnee(get_position(soldiers[i])));
         }
     }
 }
@@ -216,13 +216,10 @@ int soldier_fight(tSoldier soldier1, tSoldier soldier2) {
 tSoldier *copy_soldiers(tSoldier *soldiersToCopyFrom, int size) {
     if (!(soldiersToCopyFrom && size > 0)) return NULL;
     tSoldier *copied = malloc(sizeof(struct sSoldier) * size);
-    if (!copied) {
-        free(copied);
-        return NULL;
-    }
+    if (!copied) return NULL;
     enum side_color side = get_side(soldiersToCopyFrom[0]);
     for (int i = 0 ; i < size ; ++i) {
-        copied[i] = create_soldier(get_unit(soldiersToCopyFrom[i]), side, get_id(soldiersToCopyFrom[i]));
+        copied[i] = create_soldier(copy_unit(get_unit(soldiersToCopyFrom[i])), side, get_id(soldiersToCopyFrom[i]));
     }
     return copied;
 }

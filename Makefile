@@ -40,6 +40,6 @@ army.o : soldier.h army.h
 soldier.o : soldier.h position.h unite.h
 square.o : position.h army.h
 map.o : map.h position.h square.h army.h
+robot.o : robot.h map.h army.h position.h square.h soldier.h
 
-
-main.o : unite.o army.o position.o map.o square.o
+main.o : unite.o army.o position.o map.o square.o robot.O3
